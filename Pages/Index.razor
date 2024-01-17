@@ -1,0 +1,141 @@
+﻿@page "/"
+@implements IDisposable
+<PageTitle>Index</PageTitle>
+<h1>NoBullshitTimer</h1>
+<p>An interval timer that just works</p>
+<p>no ads, no subscription, no annoying UI, no unnecessary features, every device, open source and simple: <b>no bullshit</b></p>
+<h2>@CurrentExercise</h2>
+<span>@NextExercise</span>
+<h1>@FormatTime(secondsLeft)</h1>
+<h1>@timerState.ToString()</h1>
+<h1>@(intervals - intervalsLeft) / @intervals</h1>
+<p> @(timerPaused ? "Pause" : "Work")</p>
+<button @onclick="PreviousInterval"> Previous Interval</button>
+<button @onclick="PlayPause"> Play / Pause</button>
+<button @onclick="NextInterval"> Next Interval </button>
+
+<h2>Edit</h2>
+
+
+
+@code {
+
+    List<string> exercises = new() {"push ups", "pull ups"};
+    int exerciseIndex = 0;
+    bool timerPaused = true;
+    int workTime = 20;
+    int restTime = 10;
+    int intervals = 3;
+    int secondsLeft;
+    int intervalsLeft;
+    Timer? timer;
+    bool isWorkInterval = true;
+    TimerState timerState = TimerState.Work;
+    string CurrentExercise => exercises[exerciseIndex];
+    string NextExercise => exercises[exerciseIndex + 1];
+
+    protected override void OnInitialized()
+    {
+        secondsLeft = workTime;
+        intervalsLeft = intervals;
+
+        timer = new Timer(_ =>
+        {
+            if (timerPaused || timerState == TimerState.Done)
+                return;
+
+            secondsLeft -= 1;
+            if (secondsLeft <= 0)
+                NextInterval();
+
+            InvokeAsync(StateHasChanged);
+        }, null, 0L, 1000L);
+
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
+        timer = null;
+    }
+
+    string FormatTime(int seconds)
+    {
+        return TimeSpan.FromSeconds(seconds).ToString("mm\\:ss");
+    }
+
+    void PreviousInterval()
+    {
+        if (timerState != TimerState.Work && timerState != TimerState.Rest)
+            return;
+
+        var secondsIntoInterval = timerState == TimerState.Work ? workTime - secondsLeft : restTime - secondsLeft;
+        if (secondsIntoInterval <= 5)
+        {
+            timerState = PreviousTimerState(timerState);
+            if (timerState == TimerState.Rest)
+            {
+                intervalsLeft += 1;
+            }
+        }
+
+        secondsLeft = timerState == TimerState.Work ? workTime : restTime;
+    }
+
+    void NextInterval()
+    {
+        if (timerState != TimerState.Work && timerState != TimerState.Rest)
+            return;
+
+        timerState = NextTimerState(timerState);
+        if (timerState == TimerState.Work)
+            intervalsLeft -= 1;
+
+        secondsLeft = timerState switch
+        {
+            TimerState.Work => workTime,
+            TimerState.Rest => restTime,
+            TimerState.Done => 0
+        };
+    }
+
+    void PlayPause()
+    {
+        timerPaused = !timerPaused;
+    }
+
+    enum TimerState
+    {
+        Ready, Work, Done, Rest, Invalid,
+    }
+
+    TimerState PreviousTimerState(TimerState timerState)
+    {
+        var isFirstInterval = intervalsLeft == intervals;
+        return timerState switch
+        {
+            TimerState.Ready => TimerState.Ready,
+            TimerState.Work => isFirstInterval ? TimerState.Ready : TimerState.Rest,
+            TimerState.Rest => TimerState.Work,
+            TimerState.Done => TimerState.Rest,
+            _   => TimerState.Invalid
+        };
+    }
+
+    TimerState NextTimerState(TimerState timerState)
+    {
+        var isLastInterval = intervalsLeft == 0;
+        var isLastExercise = exerciseIndex == exercises.Count - 1;
+        return timerState switch
+        {
+            TimerState.Ready => TimerState.Work,
+            TimerState.Work => TimerState.Rest,
+            TimerState.Rest => isLastInterval && isLastExercise ? TimerState.Done : TimerState.Work,
+            TimerState.Done => TimerState.Done,
+            _ => TimerState.Invalid
+        };
+    }
+
+
+
+}
