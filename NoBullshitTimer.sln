@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoBullshitTimer", "NoBullshitTimer.csproj", "{36703E3F-C591-453A-8B8B-5EB8F90A8F84}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoBullshitTimer", "NoBullshitTimer/NoBullshitTimer.csproj", "{36703E3F-C591-453A-8B8B-5EB8F90A8F84}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoBullshitTimer.Tests", "NoBullshitTimer.Tests\NoBullshitTimer.Tests.csproj", "{FB33DF68-FAA4-429A-873A-CA9766F593A9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoBullshitTimer.Tests", "NoBullshitTimer.Tests\NoBullshitTimer.Tests.csproj", "{84CE9B3B-458C-4950-B83C-69E8FB3DE36E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +18,9 @@ Global
 		{FB33DF68-FAA4-429A-873A-CA9766F593A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB33DF68-FAA4-429A-873A-CA9766F593A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB33DF68-FAA4-429A-873A-CA9766F593A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84CE9B3B-458C-4950-B83C-69E8FB3DE36E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84CE9B3B-458C-4950-B83C-69E8FB3DE36E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84CE9B3B-458C-4950-B83C-69E8FB3DE36E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84CE9B3B-458C-4950-B83C-69E8FB3DE36E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

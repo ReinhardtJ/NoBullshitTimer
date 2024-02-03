@@ -18,7 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\NoBullshitTimer.csproj" />
+      <ProjectReference Include="..\NoBullshitTimer\NoBullshitTimer.csproj" />
     </ItemGroup>
 
 </Project>
