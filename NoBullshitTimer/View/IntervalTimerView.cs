@@ -16,7 +16,7 @@ public class IntervalTimerView
         return TimeSpan.FromSeconds(_intervalTimer.SecondsLeft).ToString("mm\\:ss");
     }
     public string ProgressText => $"{(_intervalTimer.Interval)} / {_intervalTimer.TotalIntervals}";
-    public string PauseInformation => _intervalTimer.TimerPaused ? "Pause" : "Work";
+    public string PauseInformation => _intervalTimer.TimerPaused ? "Timer Paused" : "Timer Running";
     public float Progress => (float) (_intervalTimer.Interval - 1) / _intervalTimer.TotalIntervals;
 
     public string NextExercise {

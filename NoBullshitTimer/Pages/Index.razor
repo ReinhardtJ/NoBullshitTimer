@@ -3,21 +3,39 @@
 @using NoBullshitTimer.View
 @implements IDisposable
 <PageTitle>Index</PageTitle>
-<h1>NoBullshitTimer</h1>
-<p>An interval timer that just works</p>
-<p>no ads, no subscription, no annoying UI, no unnecessary features, every device, open source and simple: <b>no bullshit</b></p>
-<h2>Current Exercise: @_intervalTimer.CurrentExercise</h2>
-<span>Next Exercise: @_intervalTimer.NextExercise</span>
-<h1>@_intervalTimerView.SecondsLeftFormatted()</h1>
-<h1>@_intervalTimer.TimerState</h1>
-<h1>Interval Progress: @_intervalTimerView.ProgressText</h1>
-<p>@_intervalTimerView.PauseInformation</p>
-<button @onclick="_intervalTimer.PreviousInterval"> Previous Interval</button>
-<button @onclick="_intervalTimer.PlayPause">
-    Play / Pause</button>
-<button @onclick="_intervalTimer.NextInterval"> Next Interval </button>
+<div class="flex flex-col justify-center items-center text-slate-100">
+    <div class="max-lg:hidden pb-10">
+        <h1 class="text-2xl">NoBullshitTimer</h1>
+        <p>An interval timer that just works</p>
+        <p>no ads, no subscription, no annoying UI, no unnecessary features, every device, open source and simple: <b>no bullshit</b></p>
+    </div>
 
-<h2>Edit</h2>
+    <div class="pb-20">
+        <div class="text-3xl text-center">
+            Current Exercise: @_intervalTimer.CurrentExercise
+        </div>
+        <div class="text-lg text-center">
+            Next Exercise: @_intervalTimer.NextExercise
+        </div>
+    </div>
+
+    <div class="pb-20">
+        <div class="text-3xl text-center">@_intervalTimerView.SecondsLeftFormatted()</div>
+        <div class="text-center">@_intervalTimer.TimerState</div>
+        <div class="text-center">Interval: @_intervalTimerView.ProgressText</div>
+    </div>
+
+    <div class="pb-20">
+        <div class="text-center pb-5">@_intervalTimerView.PauseInformation</div>
+        <div class="flex flex-row gap-5">
+            <button class="border-2 p-2" @onclick="_intervalTimer.PreviousInterval"> Previous Interval</button>
+            <button class="border-2 p-2" @onclick="_intervalTimer.PlayPause">Play / Pause</button>
+            <button class="border-2 p-2" @onclick="_intervalTimer.NextInterval"> Next Interval </button>
+        </div>
+    </div>
+
+    <h1 class="hidden">Edit</h1>
+</div>
 
 @code {
 
