@@ -8,15 +8,23 @@ public enum TimerState
 
 public class IntervalTimer
 {
-    private readonly List<string> _exercises;
     private readonly int _workTime;
     private readonly int _restTime;
-    public readonly int Intervals;
+    private readonly int _intervals;
+    private readonly List<string> _exercises;
+
+    public IntervalTimer(int workTime, int restTime, int intervals, List<string> exercises)
+    {
+        _workTime = workTime;
+        _restTime = restTime;
+        _intervals = intervals;
+        _exercises = exercises;
+    }
 
     public bool TimerPaused = true;
     private bool _isWorkInterval = true;
 
-    public int TotalIntervals => _exercises.Count * Intervals;
+    public int TotalIntervals => _exercises.Count * _intervals;
 
     // tracked variables
     public int Interval { get; private set; }
@@ -25,9 +33,6 @@ public class IntervalTimer
     // computed variables
     // public int TotalIntervalsDone => _interval - 1;
     private int IntervalsDoneInExercise => Interval - _exercises.Count * (_exercise - 1) - 1;
-
-    // private int TotalIntervalsLeft => TotalIntervals - _interval;
-    // private int TotalExercisesDone => _exercise - 1;
 
     public int SecondsLeft { get; private set; }
     public TimerState TimerState { get; private set; } = TimerState.Ready;
@@ -55,14 +60,6 @@ public class IntervalTimer
             }
             return _exercises[_exercise];
         }
-    }
-
-    public IntervalTimer(int workTime, int restTime, int intervals, List<string> exercises)
-    {
-        _workTime = workTime;
-        _restTime = restTime;
-        Intervals = intervals;
-        _exercises = exercises;
     }
 
     public void Tick()

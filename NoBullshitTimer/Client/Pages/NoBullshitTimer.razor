@@ -1,0 +1,68 @@
+﻿@page "/"
+@using global::NoBullshitTimer.Domain
+@using global::NoBullshitTimer.View
+@implements IDisposable
+
+
+<PageTitle>Index</PageTitle>
+<div class="text-slate-100 p-12">
+    <div class="max-lg:hidden pb-24 max-w-sm">
+        <h1 class="text-2xl">NoBullshitTimer</h1>
+        <p>An interval timer that just works</p>
+        <p>no ads, no subscription, no annoying UI, no unnecessary features, every device, open source and simply: <b>no bullshit</b></p>
+    </div>
+    <div class="flex flex-col justify-center items-center ">
+
+        <div class="pb-20">
+            <div class="text-3xl text-center">
+                Current Exercise: @_intervalTimer.CurrentExercise
+            </div>
+            <div class="text-lg text-center">
+                Next Exercise: @_intervalTimer.NextExercise
+            </div>
+        </div>
+
+        <div class="pb-20">
+            <div class="text-3xl text-center">@_intervalTimerView.SecondsLeftFormatted()</div>
+            <div class="text-center">@_intervalTimer.TimerState</div>
+            <div class="text-center">Interval: @_intervalTimerView.ProgressText</div>
+        </div>
+
+        <div class="pb-20">
+            <div class="text-center pb-5">@_intervalTimerView.PauseInformation</div>
+            <div class="flex flex-row gap-5">
+                <button class="border-2 p-2" @onclick="_intervalTimer.PreviousInterval"> Previous Interval</button>
+                <button class="border-2 p-2" @onclick="_intervalTimer.PlayPause">Play / Pause</button>
+                <button class="border-2 p-2" @onclick="_intervalTimer.NextInterval"> Next Interval </button>
+            </div>
+        </div>
+
+        <h1 class="hidden">Edit</h1>
+    </div>
+</div>
+
+@code {
+
+    private Timer? _timer;
+    private IntervalTimer _intervalTimer;
+    private IntervalTimerView _intervalTimerView;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _intervalTimer = new IntervalTimer(40, 20, 3, ["push ups", "pull ups"]);
+        _intervalTimerView = new IntervalTimerView(_intervalTimer);
+
+        _timer = new Timer(_ =>
+        {
+            _intervalTimer.Tick();
+            InvokeAsync(StateHasChanged);
+        }, null, 0L, 1000L);
+    }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+        _timer = null;
+    }
+
+}

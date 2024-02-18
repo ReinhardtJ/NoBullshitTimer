@@ -1,5 +1,4 @@
 using NoBullshitTimer.Domain;
-using NoBullshitTimer.View;
 using NUnit.Framework;
 
 namespace NoBullshitTimer.Tests;
@@ -9,7 +8,6 @@ public class TestIntervalTimer
     [SetUp]
     public void Setup()
     {
-
     }
 
     [Test]
@@ -25,5 +23,5 @@ public class TestIntervalTimer
         Assert.That(intervalTimer.CurrentExercise, Is.EqualTo("push ups"));
         Assert.That(intervalTimer.NextExercise, Is.EqualTo("push ups"));
         Assert.That(intervalTimer.SecondsLeft, Is.EqualTo(4));
-}
+    }
 }
