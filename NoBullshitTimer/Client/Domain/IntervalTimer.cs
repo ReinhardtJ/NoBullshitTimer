@@ -1,117 +1,135 @@
 namespace NoBullshitTimer.Domain;
 
-public enum TimerState
+public abstract class TimeInterval(string name)
 {
-    Ready, Work, Done, Rest, Invalid,
+    public abstract int IntervalLength { get; }
+
+    public int SecondsIntoInterval(int secondsLeft)
+    {
+        return IntervalLength - secondsLeft;
+    }
+
+    public string Name { get; } = name;
+}
+
+public class Ready() : TimeInterval("Ready")
+{
+    public override int IntervalLength => 0;
+}
+
+public class Prepare(int prepareTime) : TimeInterval("Prepare")
+{
+    public override int IntervalLength => prepareTime;
+}
+
+public class Work(
+    int workTime,
+    bool isFirstInterval,
+    bool isLastInterval,
+    string name
+) : TimeInterval(name)
+{
+    public override int IntervalLength => workTime;
+}
+
+public class Rest(int restTime) : TimeInterval("Rest")
+{
+    public override int IntervalLength => restTime;
+}
+
+public class Cooldown(int cooldownTime) : TimeInterval("Cooldown")
+{
+    public override int IntervalLength => cooldownTime;
+}
+
+public class Done() : TimeInterval("Done")
+{
+    public override int IntervalLength => 0;
 }
 
 
 public class IntervalTimer
 {
-    private readonly int _workTime;
-    private readonly int _restTime;
-    private readonly int _intervals;
-    private readonly List<string> _exercises;
 
-    public IntervalTimer(int workTime, int restTime, int intervals, List<string> exercises)
-    {
-        _workTime = workTime;
-        _restTime = restTime;
-        _intervals = intervals;
-        _exercises = exercises;
-    }
+    private LinkedList<TimeInterval> _intervals;
 
     public bool TimerPaused = true;
-    private bool _isWorkInterval = true;
-
-    public int TotalIntervals => _exercises.Count * _intervals;
+    public int TotalIntervals => _intervals.Count;
 
     // tracked variables
     public int Interval { get; private set; }
-    private int _exercise = 0;
+    private readonly int _exerciseIndex = 0;
+
+    public IntervalTimer(
+        int prepareTime,
+        int workTime,
+        int restTime,
+        int cooldownTime,
+        int intervals,
+        List<string> exercises
+    )
+    {
+        _intervals = new LinkedList<TimeInterval>();
+        _intervals.AddLast(new Ready());
+        _intervals.AddLast(new Prepare(prepareTime));
+        foreach (var exercise in exercises)
+        {
+            for (var i = 0; i < intervals; i++)
+            {
+                _intervals.AddLast(new Work(workTime, i == 0, i == intervals - 1, exercise));
+                if (i == intervals - 1 && exercise == exercises[^1])
+                {
+                    break;
+                }
+
+                _intervals.AddLast(new Rest(restTime));
+            }
+        }
+
+        _intervals.AddLast(new Cooldown(cooldownTime));
+        _intervals.AddLast(new Done());
+        CurrentIntervalNode = _intervals.First;
+    }
+
+
 
     // computed variables
     // public int TotalIntervalsDone => _interval - 1;
-    private int IntervalsDoneInExercise => Interval - _exercises.Count * (_exercise - 1) - 1;
+    // private int IntervalsDoneInExercise => Interval - _exercises.Count * (_exerciseIndex - 1) - 1;
 
     public int SecondsLeft { get; private set; }
-    public TimerState TimerState { get; private set; } = TimerState.Ready;
-
-
-    public string CurrentExercise
-    {
-        get
-        {
-            if (_exercise > 0)
-            {
-                return _exercises[_exercise - 1];
-            }
-            return _exercises[0];
-        }
-    }
-
-    public string NextExercise
-    {
-        get
-        {
-            if (_exercise == _exercises.Count)
-            {
-                return "";
-            }
-            return _exercises[_exercise];
-        }
-    }
+    private LinkedListNode<TimeInterval?> CurrentIntervalNode { get; set; }
+    public TimeInterval? CurrentInterval => CurrentIntervalNode.Value;
+    public TimeInterval? NextInterval => CurrentIntervalNode.Next?.Value;
 
     public void Tick()
     {
-        if (TimerPaused || TimerState == TimerState.Done)
+        if (TimerPaused || CurrentIntervalNode.Value is Done)
             return;
-
-        if (SecondsLeft <= 0)
-            NextInterval();
 
         SecondsLeft -= 1;
+
+        if (SecondsLeft <= 0)
+            GoToNextInterval();
     }
 
-
-
-    public void PreviousInterval()
+    public void GoToPreviousInterval()
     {
-        if (TimerState != TimerState.Work && TimerState != TimerState.Rest)
-            return;
-
-        var secondsIntoInterval = TimerState == TimerState.Work
-            ? _workTime - SecondsLeft
-            : _restTime - SecondsLeft;
-
-        // go to previous interval
-        if (secondsIntoInterval <= 5)
+        if (CurrentIntervalNode.Value.SecondsIntoInterval(SecondsLeft) < 5)
         {
-            var isFirstInterval = Interval == 0;
-            TimerState = TimerState switch
-            {
-                TimerState.Ready => TimerState.Ready,
-                TimerState.Work => isFirstInterval ? TimerState.Ready : TimerState.Rest,
-                TimerState.Rest => TimerState.Work,
-                TimerState.Done => TimerState.Rest,
-                _   => TimerState.Invalid
-            };
+            CurrentIntervalNode = CurrentIntervalNode.Previous;
         }
-        SecondsLeft = TimerState == TimerState.Work ? _workTime : _restTime;
+        SecondsLeft = CurrentIntervalNode.Value.IntervalLength;
+        if (CurrentInterval is Ready)
+        {
+            TimerPaused = true;
+        }
     }
 
-    public void NextInterval()
+    public void GoToNextInterval()
     {
-        if (TimerState == TimerState.Done)
-            return;
-
-        if (TimerState == TimerState.Ready)
-        {
-            SecondsLeft = _workTime;
-            TimerState = TimerState.Work;
-            TimerPaused = false;
-        }
-
+        CurrentIntervalNode = CurrentIntervalNode.Next;
+        SecondsLeft = CurrentIntervalNode.Value.IntervalLength;
     }
 
     public void PlayPause()
@@ -119,3 +137,4 @@ public class IntervalTimer
         TimerPaused = !TimerPaused;
     }
 }
+

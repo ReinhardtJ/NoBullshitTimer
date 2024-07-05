@@ -1,6 +1,5 @@
 ﻿@page "/"
 @using global::NoBullshitTimer.Domain
-@using global::NoBullshitTimer.View
 @implements IDisposable
 
 
@@ -15,25 +14,25 @@
 
         <div class="pb-20">
             <div class="text-3xl text-center">
-                Current Exercise: @_intervalTimer.CurrentExercise
+                Current Exercise: @_intervalTimer.CurrentInterval.Name
             </div>
             <div class="text-lg text-center">
-                Next Exercise: @_intervalTimer.NextExercise
+                Next Exercise: @_intervalTimer.NextInterval.Name
             </div>
         </div>
 
         <div class="pb-20">
-            <div class="text-3xl text-center">@_intervalTimerView.SecondsLeftFormatted()</div>
-            <div class="text-center">@_intervalTimer.TimerState</div>
-            <div class="text-center">Interval: @_intervalTimerView.ProgressText</div>
+            <div class="text-3xl text-center">@SecondsLeftFormatted()</div>
+            @* <div class="text-center">@_intervalTimer.TimeInterval</div> *@
+            <div class="text-center">Interval: @ProgressText</div>
         </div>
 
         <div class="pb-20">
-            <div class="text-center pb-5">@_intervalTimerView.PauseInformation</div>
+            <div class="text-center pb-5">@PauseInformation</div>
             <div class="flex flex-row gap-5">
-                <button class="border-2 p-2" @onclick="_intervalTimer.PreviousInterval"> Previous Interval</button>
+                <button class="border-2 p-2" @onclick="_intervalTimer.GoToPreviousInterval"> Previous Interval</button>
                 <button class="border-2 p-2" @onclick="_intervalTimer.PlayPause">Play / Pause</button>
-                <button class="border-2 p-2" @onclick="_intervalTimer.NextInterval"> Next Interval </button>
+                <button class="border-2 p-2" @onclick="_intervalTimer.GoToNextInterval"> Next Interval </button>
             </div>
         </div>
 
@@ -45,12 +44,18 @@
 
     private Timer? _timer;
     private IntervalTimer _intervalTimer;
-    private IntervalTimerView _intervalTimerView;
+
+    public string SecondsLeftFormatted()
+    {
+        return TimeSpan.FromSeconds(_intervalTimer.SecondsLeft).ToString("mm\\:ss");
+    }
+    public string ProgressText => $"{(_intervalTimer.Interval)} / {_intervalTimer.TotalIntervals}";
+    public string PauseInformation => _intervalTimer.TimerPaused ? "Timer Paused" : "Timer Running";
+    public float Progress => (float) (_intervalTimer.Interval - 1) / _intervalTimer.TotalIntervals;
 
     protected override async Task OnInitializedAsync()
     {
-        _intervalTimer = new IntervalTimer(40, 20, 3, ["push ups", "pull ups"]);
-        _intervalTimerView = new IntervalTimerView(_intervalTimer);
+        _intervalTimer = new IntervalTimer(5, 10, 5, 10, 3, ["push ups", "pull ups"]);
 
         _timer = new Timer(_ =>
         {
