@@ -6,10 +6,13 @@ Hosting Model: Client Hosted
 
 ## Start
 
-
+Use one of the configurations provided 
 
 ## Tailwind Reference
 https://chrissainty.com/adding-tailwind-css-v3-to-a-blazor-app/
 
+```bash
+cd Client
 npx tailwindcss -i ./Styles/app.css -o ./wwwroot/css/app.css --watch
 npx tailwindcss -i ./Styles/app.css -o ./wwwroot/css/app.css --minify
+```

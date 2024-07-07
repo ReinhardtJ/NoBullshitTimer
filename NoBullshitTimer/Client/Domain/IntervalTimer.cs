@@ -1,106 +1,41 @@
-namespace NoBullshitTimer.Domain;
-
-public abstract class TimeInterval(string name)
-{
-    public abstract int IntervalLength { get; }
-
-    public int SecondsIntoInterval(int secondsLeft)
-    {
-        return IntervalLength - secondsLeft;
-    }
-
-    public string Name { get; } = name;
-}
-
-public class Ready() : TimeInterval("Ready")
-{
-    public override int IntervalLength => 0;
-}
-
-public class Prepare(int prepareTime) : TimeInterval("Prepare")
-{
-    public override int IntervalLength => prepareTime;
-}
-
-public class Work(
-    int workTime,
-    bool isFirstInterval,
-    bool isLastInterval,
-    string name
-) : TimeInterval(name)
-{
-    public override int IntervalLength => workTime;
-}
-
-public class Rest(int restTime) : TimeInterval("Rest")
-{
-    public override int IntervalLength => restTime;
-}
-
-public class Cooldown(int cooldownTime) : TimeInterval("Cooldown")
-{
-    public override int IntervalLength => cooldownTime;
-}
-
-public class Done() : TimeInterval("Done")
-{
-    public override int IntervalLength => 0;
-}
-
+namespace NoBullshitTimer.Client.Domain;
 
 public class IntervalTimer
 {
-
-    private LinkedList<TimeInterval> _intervals;
-
+    public int CurrentIntervalNr { get; private set; }
+    public int SecondsLeft { get; private set; }
     public bool TimerPaused = true;
-    public int TotalIntervals => _intervals.Count;
+    public WorkoutPlan WorkoutPlan { get; }
+    private LinkedListNode<Interval> CurrentIntervalNode { get; set; }
 
-    // tracked variables
-    public int Interval { get; private set; }
-    private readonly int _exerciseIndex = 0;
-
-    public IntervalTimer(
-        int prepareTime,
-        int workTime,
-        int restTime,
-        int cooldownTime,
-        int intervals,
-        List<string> exercises
-    )
+    public IntervalTimer(WorkoutPlan plan)
     {
-        _intervals = new LinkedList<TimeInterval>();
-        _intervals.AddLast(new Ready());
-        _intervals.AddLast(new Prepare(prepareTime));
-        foreach (var exercise in exercises)
+        WorkoutPlan = plan;
+        LinkedList<Interval> intervals = new();
+        intervals.AddLast(new Ready());
+        intervals.AddLast(new Prepare(plan.prepareTime));
+        foreach (var exercise in plan.exercises)
         {
-            for (var i = 0; i < intervals; i++)
+            for (var i = 0; i < plan.setsPerExercise; i++)
             {
-                _intervals.AddLast(new Work(workTime, i == 0, i == intervals - 1, exercise));
-                if (i == intervals - 1 && exercise == exercises[^1])
+                intervals.AddLast(new Work(plan.workTime, exercise));
+                if (i == plan.setsPerExercise - 1 && exercise == plan.exercises[^1])
                 {
                     break;
                 }
 
-                _intervals.AddLast(new Rest(restTime));
+                intervals.AddLast(new Rest(plan.restTime));
             }
         }
 
-        _intervals.AddLast(new Cooldown(cooldownTime));
-        _intervals.AddLast(new Done());
-        CurrentIntervalNode = _intervals.First;
+        intervals.AddLast(new Cooldown(plan.cooldownTime));
+        intervals.AddLast(new Done());
+        CurrentIntervalNode = intervals.First!;
+        CurrentIntervalNr = 1;
     }
 
-
-
-    // computed variables
-    // public int TotalIntervalsDone => _interval - 1;
-    // private int IntervalsDoneInExercise => Interval - _exercises.Count * (_exerciseIndex - 1) - 1;
-
-    public int SecondsLeft { get; private set; }
-    private LinkedListNode<TimeInterval?> CurrentIntervalNode { get; set; }
-    public TimeInterval? CurrentInterval => CurrentIntervalNode.Value;
-    public TimeInterval? NextInterval => CurrentIntervalNode.Next?.Value;
+    public Interval CurrentInterval => CurrentIntervalNode.Value;
+    public Interval? NextInterval => CurrentIntervalNode.Next?.Value;
 
     public void Tick()
     {
@@ -115,24 +50,31 @@ public class IntervalTimer
 
     public void GoToPreviousInterval()
     {
-        if (CurrentIntervalNode.Value.SecondsIntoInterval(SecondsLeft) < 5)
+        if (CurrentIntervalNode.Previous is null)
+            return;
+
+        if (CurrentIntervalNode.Value.SecondsIntoInterval(SecondsLeft) <= 5)
         {
             CurrentIntervalNode = CurrentIntervalNode.Previous;
+            CurrentIntervalNr -= 1;
         }
+
         SecondsLeft = CurrentIntervalNode.Value.IntervalLength;
         if (CurrentInterval is Ready)
-        {
             TimerPaused = true;
-        }
     }
 
     public void GoToNextInterval()
     {
+        if (CurrentIntervalNode.Next is null)
+            return;
+
         CurrentIntervalNode = CurrentIntervalNode.Next;
         SecondsLeft = CurrentIntervalNode.Value.IntervalLength;
+        CurrentIntervalNr += 1;
     }
 
-    public void PlayPause()
+    public void TogglePlayPause()
     {
         TimerPaused = !TimerPaused;
     }

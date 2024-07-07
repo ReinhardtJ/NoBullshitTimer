@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoBullshitTimer.Client", "N
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoBullshitTimer.Shared", "NoBullshitTimer\Shared\NoBullshitTimer.Shared.csproj", "{E5CBCB3F-289E-4970-8C65-6262031C0F36}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoBullshitTimer.Tests", "NoBullshitTimer.Tests\NoBullshitTimer.Tests.csproj", "{0E4D518A-9C4A-404E-8ABC-DDBA86A745B9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoBullshitTimer.Tests", "NoBullshitTimer\Tests\NoBullshitTimer.Tests.csproj", "{0E4D518A-9C4A-404E-8ABC-DDBA86A745B9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

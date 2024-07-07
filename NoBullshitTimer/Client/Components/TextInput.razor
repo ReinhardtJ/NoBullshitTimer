@@ -1,0 +1,19 @@
+@namespace NoBullshitTimer.Client.Components
+
+<label>
+    @Label
+    <input class="bg-slate-700" value="@InputData" @oninput="UpdateInputData"/>
+</label>
+
+@code {
+    [Parameter] public string Label { get; set; }
+
+    [Parameter] public string InputData { get; set; }
+
+    [Parameter] public EventCallback<string> InputDataChanged { get; set; }
+
+    private async Task UpdateInputData(ChangeEventArgs e)
+    {
+        await InputDataChanged.InvokeAsync(e.Value?.ToString());
+    }
+}

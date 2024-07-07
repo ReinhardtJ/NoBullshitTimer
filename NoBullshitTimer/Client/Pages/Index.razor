@@ -1,0 +1,234 @@
+﻿@namespace NoBullshitTimer.Client.Pages
+
+@page "/"
+
+@using NoBullshitTimer.Client.Domain
+@using NoBullshitTimer.Client.Components
+@implements IDisposable
+
+
+<PageTitle>Index</PageTitle>
+<div class="dark:text-slate-100 p-12">
+    <div class="max-lg:hidden pb-24 max-w-sm">
+        <h1 class="text-2xl">NoBullshitTimer</h1>
+        <p>An interval timer that just works</p>
+        <p>no ads, no subscription, no annoying UI, no unnecessary features, every device, open source and simply: <b>no bullshit</b></p>
+    </div>
+    <div class="max-w-screen-md mx-auto">
+        <div class="flex flex-col items-center">
+            <div class="pb-20">
+                <div class="text-3xl text-center">
+                    @_intervalTimer.CurrentInterval?.Name
+                </div>
+                <div class="text-lg text-center">
+                    Next: @_intervalTimer.NextInterval?.Name
+                </div>
+            </div>
+
+                <div class="pb-20">
+                    <div class="text-3xl text-center">@SecondsLeftFormatted()</div>
+                @if (_intervalTimer.CurrentInterval is Work or Rest)
+                {
+                    <div class="text-center">Exercise: @ExerciseProgress</div>
+                    <div class="text-center">Set: @SetProgress</div>
+                }
+                </div>
+
+            <div class="pb-20">
+                <div class="text-center pb-5">@PauseInformation</div>
+                <div class="flex flex-row gap-5">
+                    <button class="border-2 p-2" @onclick="_intervalTimer.GoToPreviousInterval"> Previous Interval</button>
+                    <button class="border-2 p-2" @onclick="_intervalTimer.TogglePlayPause">Play / Pause</button>
+                    <button class="border-2 p-2" @onclick="_intervalTimer.GoToNextInterval"> Next Interval </button>
+                </div>
+            </div>
+        </div>
+        <div>
+            <h1 class="text-2xl">Edit</h1>
+            <div class="flex flex-row">
+                <TextInput Label="Prepare Time" @bind-InputData="_prepareTimeInputRaw"/>
+                <span>(@PrepareTimeInput s)</span>
+            </div>
+            <div class="flex flex-row">
+                <TextInput Label="Work Time" @bind-InputData="_workTimeInputRaw"/>
+                <span>(@WorkTimeInput s)</span>
+            </div>
+            <div class="flex flex-row">
+                <TextInput Label="Rest Time" @bind-InputData="_restTimeInputRaw"/>
+                <span>(@RestTimeInput s)</span>
+            </div>
+            <div class="flex flex-row">
+                <TextInput Label="Cooldown Time" @bind-InputData="_cooldownTimeInputRaw"/>
+                <span>(@CooldownTimeInput s)</span>
+            </div>
+            <div class="flex flex-row">
+                <TextInput Label="Intervals" @bind-InputData="_nrOfIntervalsInputRaw"/>
+                <span>(@NrOfIntervalsInput s)</span>
+            </div>
+
+            Exercises
+            @foreach (var exerciseInput in _exerciseInputsRaw)
+            {
+                <div class="flex flex-row">
+                    <button @onclick="_ => AddExercise(exerciseInput)">Add Exercise</button>
+                    <TextInput Label="Exercise" @bind-InputData="exerciseInput.Name"></TextInput>
+                    @if (_exerciseInputsRaw.Count > 1)
+                    {
+                        <button @onclick="_ => DeleteExercise(exerciseInput)">Delete Exercise</button>
+                    }
+                </div>
+            }
+            <button @onclick="Apply">
+                Apply
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private Timer? _timer;
+    private IntervalTimer _intervalTimer;
+
+    private void Apply()
+    {
+        var workoutPlan = new WorkoutPlan(
+            PrepareTimeInput,
+            WorkTimeInput,
+            RestTimeInput,
+            CooldownTimeInput,
+            NrOfIntervalsInput,
+            ExerciseInputs
+        );
+        if (!Validate(workoutPlan))
+        {
+            // display warning
+            return;
+        }
+        Dispose();
+        _intervalTimer = new IntervalTimer(workoutPlan);
+        _timer = new Timer(_ =>
+        {
+            _intervalTimer.Tick();
+            InvokeAsync(StateHasChanged);
+        }, null, 0L, 1000L);
+    }
+
+    private bool Validate(WorkoutPlan workoutPlan)
+    {
+        return true;
+    }
+
+    public string SecondsLeftFormatted()
+    {
+        return TimeSpan.FromSeconds(_intervalTimer.SecondsLeft).ToString("mm\\:ss");
+    }
+
+    public string SetProgress
+    {
+        get
+        {
+            var intervalsPerExercise = _intervalTimer.WorkoutPlan.setsPerExercise * 2;
+            var intervalInExercise = (_intervalTimer.CurrentIntervalNr - 2) % intervalsPerExercise;
+            intervalInExercise = intervalInExercise == 0 ? intervalsPerExercise : intervalInExercise;
+            intervalInExercise = (intervalInExercise + 1) / 2;
+
+            return $"{(intervalInExercise)} / {_intervalTimer.WorkoutPlan.setsPerExercise}";
+
+        }
+    }
+
+    public string ExerciseProgress
+    {
+        get
+        {
+            var intervalsPerExercise = _intervalTimer.WorkoutPlan.setsPerExercise * 2;
+            var intervalInWorkout = (_intervalTimer.CurrentIntervalNr - 2);
+            var exercisesPerWorkout = _intervalTimer.WorkoutPlan.exercises.Count;
+            var exerciseInWorkout = (intervalInWorkout + intervalsPerExercise - 1) / intervalsPerExercise;
+            return $"{exerciseInWorkout} / {exercisesPerWorkout}";
+        }
+    }
+
+
+    public string PauseInformation => _intervalTimer.TimerPaused ? "Timer Paused" : "Timer Running";
+    // public float Progress => (float)(_intervalTimer.CurrentIntervalNr - 1) / _intervalTimer.TotalIntervals;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _intervalTimer = new IntervalTimer(new WorkoutPlan(5, 10, 5, 10, 3, ["push ups", "pull ups"]));
+
+        _timer = new Timer(_ =>
+        {
+            _intervalTimer.Tick();
+            InvokeAsync(StateHasChanged);
+        }, null, 0L, 1000L);
+    }
+
+    private int PrepareTimeInput => ParseTimeToSeconds(_prepareTimeInputRaw, 10);
+    private int WorkTimeInput => ParseTimeToSeconds(_workTimeInputRaw, 40);
+    private int RestTimeInput => ParseTimeToSeconds(_restTimeInputRaw, 20);
+    private int CooldownTimeInput => ParseTimeToSeconds(_cooldownTimeInputRaw, 60);
+
+    private int NrOfIntervalsInput
+    {
+        get
+        {
+            if (int.TryParse(_nrOfIntervalsInputRaw, out var nrOfIntervals))
+                return nrOfIntervals;
+            return 3;
+        }
+    }
+
+    private string
+        _prepareTimeInputRaw = "00:10",
+        _workTimeInputRaw = "00:40",
+        _restTimeInputRaw = "00:20",
+        _cooldownTimeInputRaw = "01:00",
+        _nrOfIntervalsInputRaw = "3";
+
+    record ExerciseInput
+    {
+        public string Name { get; set; }
+    }
+
+    private List<ExerciseInput> _exerciseInputsRaw = [new ExerciseInput { Name = "Exercise 1" }];
+
+    private List<string> ExerciseInputs => _exerciseInputsRaw
+        .Select(exerciseInput => exerciseInput.Name)
+        .ToList();
+
+    private void DeleteExercise(ExerciseInput exerciseInput)
+    {
+        _exerciseInputsRaw.Remove(exerciseInput);
+        Console.WriteLine(_exerciseInputsRaw);
+    }
+
+    private void AddExercise(ExerciseInput exerciseInput)
+    {
+        var insertIndex = _exerciseInputsRaw.IndexOf(exerciseInput) + 1;
+        _exerciseInputsRaw.Insert(insertIndex, new ExerciseInput { Name = $"Exercise {insertIndex + 1}" });
+        Console.WriteLine(_exerciseInputsRaw);
+    }
+
+
+    private int ParseTimeToSeconds(string time, int defaultValue)
+    {
+        var parts = time.Split(':');
+        if (parts.Length != 2)
+            return defaultValue;
+
+        if (int.TryParse(parts[0], out var minutes) && int.TryParse(parts[1], out var seconds))
+            return minutes * 60 + seconds;
+
+        return defaultValue;
+    }
+
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+        _timer = null;
+    }
+
+}
