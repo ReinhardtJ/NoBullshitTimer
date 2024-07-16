@@ -1,12 +1,10 @@
 @namespace NoBullshitTimer.Client.Components
 
 <label>
-    @Label
-    <input class="bg-slate-700" value="@InputData" @oninput="UpdateInputData"/>
+    <input class="bg-slate-700 py-2 pr-2 mr-2 text-right" value="@InputData" @oninput="UpdateInputData"/>
 </label>
 
 @code {
-    [Parameter] public string Label { get; set; }
 
     [Parameter] public string InputData { get; set; }
 

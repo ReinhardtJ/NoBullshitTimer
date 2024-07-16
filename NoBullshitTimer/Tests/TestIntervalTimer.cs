@@ -18,15 +18,15 @@ public class TestIntervalTimer
             2,
             ["push ups", "pull ups"]
         );
-        _intervalTimer = new IntervalTimer(workoutPlan);
+        _intervalTimer = new IntervalTimer(workoutPlan, () => {});
     }
 
 
     [Test]
-    public void Test_Tick_paused_Timer_does_not_change_its_Interval()
+    public async Task Test_Tick_paused_Timer_does_not_change_its_Interval()
     {
         Assert.That(_intervalTimer.CurrentInterval is Ready);
-        _intervalTimer.Tick();
+        await Task.Delay(1100);
         Assert.That(_intervalTimer.CurrentInterval is Ready);
     }
 
@@ -43,18 +43,17 @@ public class TestIntervalTimer
     [Test]
     public void Test_Interval_gets_tracked_correctly()
     {
-        Assert.That(_intervalTimer.CurrentIntervalNr, Is.EqualTo(0));
-        _intervalTimer.GoToNextInterval();
         Assert.That(_intervalTimer.CurrentIntervalNr, Is.EqualTo(1));
+        _intervalTimer.GoToNextInterval();
+        Assert.That(_intervalTimer.CurrentIntervalNr, Is.EqualTo(2));
         _intervalTimer.GoToPreviousInterval();
-        Assert.That(_intervalTimer.CurrentIntervalNr, Is.EqualTo(0));
+        Assert.That(_intervalTimer.CurrentIntervalNr, Is.EqualTo(1));
     }
 
     [Test]
     public void Test_GoToPreviousInterval_goes_back_or_resets_Interval_depending_on_time_into_Interval()
     {
         _intervalTimer.GoToNextInterval();
-        _intervalTimer.TogglePlayPause();
         Tick(_intervalTimer, 6);
         _intervalTimer.GoToPreviousInterval();
         Assert.That(_intervalTimer.CurrentInterval is Prepare);
@@ -90,7 +89,6 @@ public class TestIntervalTimer
     {
         Assert.That(_intervalTimer.CurrentInterval is Ready);
         Assert.That(_intervalTimer.NextInterval is Prepare);
-        _intervalTimer.TogglePlayPause();
 
         _intervalTimer.GoToNextInterval();
         Assert.That(_intervalTimer.CurrentInterval is Prepare);
@@ -144,7 +142,6 @@ public class TestIntervalTimer
     [Test]
     public void TestTimerStateMovingBackward()
     {
-        _intervalTimer.TogglePlayPause();
         while (_intervalTimer.CurrentInterval is not Done)
         {
             _intervalTimer.GoToNextInterval();
@@ -182,15 +179,14 @@ public class TestIntervalTimer
             1,
             1,
             ["pull ups"]
-        ));
-        intervalTimer.TogglePlayPause();
+        ), () => {});
         Assert.That(intervalTimer.CurrentInterval is Ready);
         intervalTimer.Tick();
         Assert.That(intervalTimer.CurrentInterval is Prepare);
         Assert.That(intervalTimer.SecondsLeft, Is.EqualTo(1));
         intervalTimer.Tick();
         Assert.That(intervalTimer.CurrentInterval is Work);
-        Assert.That(intervalTimer.SecondsLeft is 3);
+        Assert.That(intervalTimer.SecondsLeft, Is.EqualTo(3));
     }
 
     private void Tick(IntervalTimer timer, int times)
