@@ -1,7 +1,12 @@
 namespace NoBullshitTimer.Client.Domain;
 
-public abstract class Interval(string name)
+public abstract class Interval
 {
+    protected Interval(string name)
+    {
+        Name = name;
+    }
+
     public abstract int IntervalLength { get; }
 
     public int SecondsIntoInterval(int secondsLeft)
@@ -9,35 +14,71 @@ public abstract class Interval(string name)
         return IntervalLength - secondsLeft;
     }
 
-    public string Name { get; } = name;
+    public string Name { get; }
 }
 
-public class Ready() : Interval("Ready")
+public class Ready : Interval
 {
+    public Ready() : base("Ready")
+    {
+    }
+
     public override int IntervalLength => 0;
 }
 
-public class Prepare(int prepareTime) : Interval("Prepare")
+public class Prepare : Interval
 {
-    public override int IntervalLength => prepareTime;
+    private readonly int _prepareTime;
+
+    public Prepare(int prepareTime) : base("Prepare")
+    {
+        _prepareTime = prepareTime;
+    }
+
+    public override int IntervalLength => _prepareTime;
 }
 
-public class Work(int workTime, string name) : Interval(name)
+public class Work : Interval
 {
-    public override int IntervalLength => workTime;
+    private readonly int _workTime;
+
+    public Work(int workTime, string name) : base(name)
+    {
+        _workTime = workTime;
+    }
+
+    public override int IntervalLength => _workTime;
 }
 
-public class Rest(int restTime) : Interval("Rest")
+public class Rest : Interval
 {
-    public override int IntervalLength => restTime;
+    private readonly int _restTime;
+
+    public Rest(int restTime) : base("Rest")
+    {
+        _restTime = restTime;
+    }
+
+    public override int IntervalLength => _restTime;
 }
 
-public class Cooldown(int cooldownTime) : Interval("Cooldown")
+public class Cooldown : Interval
 {
-    public override int IntervalLength => cooldownTime;
+    private readonly int _cooldownTime;
+
+    public Cooldown(int cooldownTime) : base("Cooldown")
+    {
+        _cooldownTime = cooldownTime;
+    }
+
+    public override int IntervalLength => _cooldownTime;
 }
 
-public class Done() : Interval("Done")
+public class Done : Interval
 {
+    public Done() : base("Done")
+    {
+    }
+
     public override int IntervalLength => 0;
 }

@@ -229,7 +229,7 @@
     }
 
 
-    private List<ExerciseInput> _exerciseInputsRaw = [new ExerciseInput ("Exercise 1")];
+    private List<ExerciseInput> _exerciseInputsRaw = new() { new ExerciseInput ("Exercise 1") };
 
     private List<string> ExerciseInputs => _exerciseInputsRaw
         .Select(exerciseInput => exerciseInput.Name)
