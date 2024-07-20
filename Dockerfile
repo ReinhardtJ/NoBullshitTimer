@@ -5,7 +5,7 @@ WORKDIR /src
 # Copy the solution file and restore dependencies
 COPY *.sln .
 COPY */*.csproj ./
-RUN for file in $(ls *.csproj); do mkdir -p ${file%.*}/ && mv $file ${file%.*}/; done
+RUN for file in $(ls *.csproj); do mkdir -p NoBullshitTimer/${file%.*}/ && mv $file NoBullshitTimer/${file%.*}/; done
 RUN dotnet restore
 
 # Copy the rest of the files and build the app
