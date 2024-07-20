@@ -1,18 +1,21 @@
-# Use the .NET SDK image to build the app
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 
-# Copy the solution file and restore dependencies
-COPY *.sln .
-COPY */*.csproj ./
+# Copy solution file
+COPY NoBullshitTimer.sln .
+
+# Copy project files
+COPY NoBullshitTimer/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p NoBullshitTimer/${file%.*}/ && mv $file NoBullshitTimer/${file%.*}/; done
+
+# Restore as distinct layers
 RUN dotnet restore
 
-# Copy the rest of the files and build the app
+# Copy everything else and build
 COPY . .
 RUN dotnet build -c Release -o /app/build
 
-# Publish the app
+# Publish
 FROM build AS publish
 RUN dotnet publish -c Release -o /app/publish
 
