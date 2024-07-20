@@ -1,18 +1,13 @@
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 
-# Copy solution file
-COPY NoBullshitTimer.sln .
-
-# Copy project files
-COPY NoBullshitTimer/*/*.csproj ./
-RUN for file in $(ls *.csproj); do mkdir -p NoBullshitTimer/${file%.*}/ && mv $file NoBullshitTimer/${file%.*}/; done
+# Copy everything at once
+COPY . .
 
 # Restore as distinct layers
-RUN dotnet restore
+RUN dotnet restore NoBullshitTimer.sln
 
-# Copy everything else and build
-COPY . .
+# Build
 RUN dotnet build -c Release -o /app/build
 
 # Publish
