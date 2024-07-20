@@ -16,7 +16,7 @@ public class TestIntervalTimer
             20,
             60,
             2,
-            ["push ups", "pull ups"]
+            new List<string> {"push ups", "pull ups"}
         );
         _intervalTimer = new IntervalTimer(workoutPlan, () => {});
     }
@@ -178,7 +178,7 @@ public class TestIntervalTimer
             2,
             1,
             1,
-            ["pull ups"]
+            new List<string> {"pull ups"}
         ), () => {});
         Assert.That(intervalTimer.CurrentInterval is Ready);
         intervalTimer.Tick();
