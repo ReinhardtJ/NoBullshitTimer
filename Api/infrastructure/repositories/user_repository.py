@@ -26,14 +26,16 @@ class UserRepositoryError(Enum):
 @define
 class UserRepository(SqlAlchemyRepository):
     def get_user(self, name: str) -> Result[User, UserRepositoryError]:
-        with self.get_session() as session:
+        result = None
+        with self.get_session() as (session, session_result):
             session: Session
             statement = select(UserModel).where(UserModel.name == name)
-            result = session.execute(statement)
-            user: UserModel | None = result.scalars().first()
-            if user:
-                return Ok(User(user.name, user.hashed_password))
-            return Err(UserRepositoryError.UserNotFound)
+            db_user: UserModel | None = session.execute(statement).scalars().first()
+            if db_user:
+                result = Ok(User(db_user.name, db_user.hashed_password))
+            result = Err(UserRepositoryError.UserNotFound)
+        session_result.value.ensure_ok()
+        return result
 
     def add_user(self, user: User) -> Result[None, UserRepositoryError]:
         with self.get_session() as session:
