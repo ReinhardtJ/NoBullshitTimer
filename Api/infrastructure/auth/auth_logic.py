@@ -24,10 +24,11 @@ def init_authenticator(
     def get_password_hash(password):
         return crypt_context.hash(password)
 
-    def authenticate_user(username: str, password: str) -> User | None:
+    async def authenticate_user(username: str, password: str) -> User | None:
         user = user_repository.get_user(username)
-        if not user:
+        if user.is_err():
             return None
+        user = user.as_ok()
         if not verify_password(password, user.hashed_password):
             return None
         return user
@@ -56,8 +57,8 @@ def init_authenticator(
         except InvalidTokenError:
             raise credentials_exception
         user = user_repository.get_user(username)
-        if user is None:
+        if user.is_err():
             raise credentials_exception
-        return user
+        return user.as_ok()
 
     return get_current_user, create_encoded_jwt_access_token, authenticate_user
