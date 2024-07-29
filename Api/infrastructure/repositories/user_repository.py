@@ -26,27 +26,21 @@ class UserRepositoryError(Enum):
 @define
 class UserRepository(SqlAlchemyRepository):
     def get_user(self, name: str) -> Result[User, UserRepositoryError]:
-        result = None
-        with self.get_session() as (session, session_result):
-            session: Session
+        with self.get_session() as session:
             statement = select(UserModel).where(UserModel.name == name)
             db_user: UserModel | None = session.execute(statement).scalars().first()
             if db_user:
-                result = Ok(User(db_user.name, db_user.hashed_password))
-            result = Err(UserRepositoryError.UserNotFound)
-        session_result.value.ensure_ok()
-        return result
+                return Ok(User(db_user.name, db_user.hashed_password))
+            else:
+                return Err(UserRepositoryError.UserNotFound)
 
     def add_user(self, user: User) -> Result[None, UserRepositoryError]:
-        with self.get_session() as session:
-            session: Session
-            try:
+        try:
+            with self.get_session() as session:
                 session.add(UserModel(name=user.name, hashed_password=user.hashed_password))
-                session.flush()
-                result = Ok()
-            except BaseException as e:
-                result = Err(UserRepositoryError.UserAlreadyExists)
-        return result
+            return Ok()
+        except IntegrityError:
+            return Err(UserRepositoryError.UserAlreadyExists)
 
     def delete_user(self, name: str):
         with self.get_session() as session:

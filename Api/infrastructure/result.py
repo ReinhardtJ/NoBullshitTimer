@@ -35,7 +35,7 @@ class Result(Generic[T, E]):
 
 
 @define
-class Err(Result):
+class Err(Result, Generic[T, E]):
     def as_ok(self) -> T: raise InvalidResultException('tried to unwrap Err-result as Ok')
 
     def as_err(self) -> E: return self._value
@@ -46,7 +46,7 @@ class Err(Result):
 
 
 @define
-class Ok(Result):
+class Ok(Result, Generic[T, E]):
     def as_ok(self) -> T: return self._value
 
     def as_err(self) -> E: raise InvalidResultException('tried to unwrap Ok-result as Err')
@@ -54,3 +54,9 @@ class Ok(Result):
     def is_err(self): return False
 
     def is_ok(self): return True
+
+
+@define
+class ExceptionErr(Err[T, BaseException]):
+    def ensure_ok(self):
+        raise self._value

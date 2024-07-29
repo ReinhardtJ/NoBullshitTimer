@@ -9,11 +9,11 @@ from sqlalchemy.orm import sessionmaker, Session
 from infrastructure.container import Container
 from infrastructure.database.base import Base
 from infrastructure.database.user_model import UserModel
-from infrastructure.result import Ok, Err, Result
+from infrastructure.result import Result
 
 
 @pytest.fixture
-def get_session() -> Callable[[], ContextManager[tuple[Session, Container[Result]]]]:
+def get_session() -> Callable[[], ContextManager[Session]]:
     db_url = 'sqlite:///:memory:'
     engine = create_engine(db_url, echo=True)
     Base.metadata.create_all(engine)
@@ -21,15 +21,14 @@ def get_session() -> Callable[[], ContextManager[tuple[Session, Container[Result
 
     # recommended usage from docs
     @contextmanager
-    def session_contextmanager() -> Generator[tuple[Session, Container[Result]], None, None]:
+    def session_contextmanager() -> Generator[Session, None, None]:
         session = session_factory()
-        result = Container(Ok())
         try:
-            yield session, result
+            yield session
             session.commit()
-        except BaseException as e:
+        except:
             session.rollback()
-            result.value = Err(e)
+            raise
         finally:
             session.close()
 
@@ -51,6 +50,8 @@ def test_add_same_user_twice_manually_and_flush(get_session):
         session.add(user_model)
         session.flush()
 
+
+def test_add_same_user_twice_manually_and_commit(get_session):
     with get_session() as session:
         session: Session
         user_model = UserModel(name='some_user', hashed_password='some_hashedpassword')
@@ -58,6 +59,8 @@ def test_add_same_user_twice_manually_and_flush(get_session):
         session.add(user_model)
         session.commit()
 
+
+def test_add_same_user_twice_manually_and_flush_in_between(get_session):
     with get_session() as session:
         session: Session
         user_model = UserModel(name='some_user', hashed_password='some_hashedpassword')
@@ -66,6 +69,8 @@ def test_add_same_user_twice_manually_and_flush(get_session):
         session.add(user_model)
         session.flush()
 
+
+def test_add_same_user_twice_manually_and_commit_in_between(get_session):
     with get_session() as session:
         session: Session
         user_model = UserModel(name='some_user', hashed_password='some_hashedpassword')
@@ -79,14 +84,13 @@ def test_add_copied_user_twice(get_session):
     user_model = UserModel(name='some_user', hashed_password='some_hashedpassword')
     user_model_copy = UserModel(name='some_user', hashed_password='some_hashedpassword')
 
-    with get_session() as (session, result):
-        session.add(user_model)
-        session.add(user_model_copy)
-        try:
+    try:
+        with get_session() as session:
+            session.add(user_model)
+            session.add(user_model_copy)
             session.flush()
             pytest.fail()
-        except IntegrityError:
-            raise
+    except IntegrityError:
+        pass
 
-    assert result.value.is_err()
 

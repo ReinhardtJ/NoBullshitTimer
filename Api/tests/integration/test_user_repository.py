@@ -41,9 +41,11 @@ def test_add_existing_user(user_repo: UserRepository):
     user = User(name='testuser', hashed_password='hashedpassword')
     user_repo.add_user(user).ensure_ok()
     add_result = user_repo.add_user(user)
-    assert add_result == UserRepositoryError.UserAlreadyExists
+    assert add_result.is_err()
+    assert add_result.as_err() == UserRepositoryError.UserAlreadyExists
 
 
 def test_get_non_existing_user(user_repo: UserRepository):
     get_result = user_repo.get_user('testuser')
-    assert get_result == UserRepositoryError.UserNotFound
+    assert get_result.is_err()
+    assert get_result.as_err() == UserRepositoryError.UserNotFound
