@@ -16,6 +16,15 @@
         <h1 class="text-2xl">NoBullshitTimer</h1>
         <p>An interval timer that just works*</p>
         <p>no ads, no subscription, no annoying UI, no unnecessary features, every device, open source and simply: <b>no bullshit</b></p>
+        <br />
+        <p>voice: 
+            <b>
+                <select class="dark:bg-slate-800" @onchange="VoicePackChanged">
+                    <option>default</option>
+                    <option>sven</option>
+                </select>
+            </b>
+        </p>
     </div>
     <div class="max-w-screen-sm mx-auto">
         <div class="flex flex-col items-center">
@@ -158,6 +167,14 @@
         return TimeSpan.FromSeconds(_intervalTimer.SecondsLeft).ToString("mm\\:ss");
     }
 
+    private void VoicePackChanged(ChangeEventArgs e)
+    {
+        if (e.Value is not null)
+        {
+            _audioPlayer.VoicePack = (string)e.Value;
+        }
+    }
+
     public string SetProgress
     {
         get
@@ -260,6 +277,4 @@
 
         return defaultValue;
     }
-
-
 }
