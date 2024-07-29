@@ -5,6 +5,7 @@ namespace NoBullshitTimer.Client.Framework;
 public class AudioPlayer
 {
     private readonly Func<string, Task> _playAudioFile;
+    public string VoicePack { get; set; } = "default";
 
     public AudioPlayer(Func<string, Task> playAudioFile)
     {
@@ -16,37 +17,38 @@ public class AudioPlayer
         switch (timer.SecondsLeft, timer.CurrentInterval)
         {
             case (3, _):
-                await _playAudioFile("Three.mp3");
+                await _playAudioFile($"{VoicePack}/Three.mp3");
                 break;
             case (2, _):
-                await _playAudioFile("Two.mp3");
+                await _playAudioFile($"{VoicePack}/Two.mp3");
                 break;
             case (1, _):
-                await _playAudioFile("One.mp3");
+                await _playAudioFile($"{VoicePack}/One.mp3");
                 break;
         }
 
         if (timer.SecondsLeft == timer.WorkoutPlan.workTime && timer.CurrentInterval is Work)
         {
-            await _playAudioFile("Go.mp3");
+            await _playAudioFile($"{VoicePack}/Go.mp3");
         }
         if (timer.SecondsLeft == timer.WorkoutPlan.restTime && timer.CurrentInterval is Rest)
         {
-            await _playAudioFile("Rest.mp3");
+            await _playAudioFile($"{VoicePack}/Rest.mp3");
         }
         if (timer.SecondsLeft == timer.WorkoutPlan.prepareTime && timer.CurrentInterval is Prepare)
         {
-            await _playAudioFile("GetReady.mp3");
+            await _playAudioFile($"{VoicePack}/GetReady.mp3");
         }
 
         if (timer.SecondsLeft == timer.WorkoutPlan.cooldownTime && timer.CurrentInterval is Cooldown)
         {
-            await _playAudioFile("Cooldown.mp3");
+            await _playAudioFile($"{VoicePack}/Cooldown.mp3");
         }
 
         if (timer.CurrentInterval is Done)
         {
-            await _playAudioFile("WorkoutComplete.mp3");
+            await _playAudioFile($"{VoicePack}/WorkoutComplete.mp3");
         }
     }
+
 }
