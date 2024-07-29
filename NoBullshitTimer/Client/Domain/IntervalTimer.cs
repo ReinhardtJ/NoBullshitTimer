@@ -78,6 +78,10 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
 
     public void GoToNextInterval()
     {
+        if (CurrentIntervalNode.Next is null)
+        {
+            return;
+        }
         if (NextInterval is Done)
         {
             TimerPaused = true;

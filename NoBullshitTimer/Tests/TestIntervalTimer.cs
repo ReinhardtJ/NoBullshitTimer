@@ -137,6 +137,10 @@ public class TestIntervalTimer
         _intervalTimer.GoToNextInterval();
         Assert.That(_intervalTimer.CurrentInterval is Done);
         Assert.That(_intervalTimer.NextInterval, Is.Null);
+
+        _intervalTimer.GoToNextInterval();
+        Assert.That(_intervalTimer.CurrentInterval is Done);
+        Assert.That(_intervalTimer.NextInterval, Is.Null);
     }
 
     [Test]
