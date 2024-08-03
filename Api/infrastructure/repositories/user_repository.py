@@ -3,6 +3,7 @@ from enum import Enum
 from attr import define
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
 from domain.user import User
@@ -25,27 +26,31 @@ class UserRepositoryError(Enum):
 
 @define
 class UserRepository(SqlAlchemyRepository):
-    def get_user(self, name: str) -> Result[User, UserRepositoryError]:
-        with self.get_session() as session:
+    async def get_user(self, name: str) -> Result[User, UserRepositoryError]:
+        async with self.get_session() as session:
+            session: AsyncSession
             statement = select(UserModel).where(UserModel.name == name)
-            db_user: UserModel | None = session.execute(statement).scalars().first()
+            result = await session.execute(statement)
+            db_user: UserModel | None = result.scalars().first()
             if db_user:
                 return Ok(User(db_user.name, db_user.hashed_password))
             else:
                 return Err(UserRepositoryError.UserNotFound)
 
-    def add_user(self, user: User) -> Result[None, UserRepositoryError]:
+    async def add_user(self, user: User) -> Result[None, UserRepositoryError]:
         try:
-            with self.get_session() as session:
+            async with self.get_session() as session:
+                session: AsyncSession
                 session.add(UserModel(name=user.name, hashed_password=user.hashed_password))
             return Ok()
         except IntegrityError:
             return Err(UserRepositoryError.UserAlreadyExists)
 
-    def delete_user(self, name: str):
-        with self.get_session() as session:
-            session: Session
+    async def delete_user(self, name: str):
+        async with self.get_session() as session:
+            session: AsyncSession
             statement = select(UserModel).where(UserModel.name == name)
-            user: UserModel | None = session.execute(statement).scalar_one_or_none()
+            result = await session.execute(statement)
+            user: UserModel | None = result.scalar_one_or_none()
             if user:
-                session.delete(user)
+                await session.delete(user)

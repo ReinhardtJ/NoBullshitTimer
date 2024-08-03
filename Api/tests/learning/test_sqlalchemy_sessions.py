@@ -6,10 +6,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker, Session
 
-from infrastructure.container import Container
 from infrastructure.database.base import Base
 from infrastructure.database.user_model import UserModel
-from infrastructure.result import Result
 
 
 @pytest.fixture

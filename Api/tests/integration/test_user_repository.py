@@ -1,51 +1,57 @@
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+import pytest_asyncio
 
 from domain.user import User
-from infrastructure.database.base import Base
-from infrastructure.repositories.user_repository import UserRepository, UserRepositoryError
+from infrastructure.database.util import init_async_sqlalchemy, delete_async_sqlalchemy
+from infrastructure.repositories.user_repository import UserRepository, \
+    UserRepositoryError
 
 
-@pytest.fixture
-def user_repo():
-    db_url = 'sqlite:///:memory:'
-    engine = create_engine(db_url, echo=True)
-    Base.metadata.create_all(engine)
-    session_factory = sessionmaker(bind=engine)
+@pytest_asyncio.fixture
+async def user_repo():
+    engine, session_factory = await init_async_sqlalchemy('sqlite+aiosqlite:///:memory:')
     repo = UserRepository(session_factory)
     yield repo
-    Base.metadata.drop_all(engine)
+    await delete_async_sqlalchemy(engine)
+    await engine.dispose()
 
 
-def test_add_and_get_user(user_repo: UserRepository):
+@pytest.mark.asyncio
+async def test_add_and_get_user(user_repo: UserRepository):
     user = User(name='testuser', hashed_password='hashedpassword')
-    user_repo.add_user(user).ensure_ok()
+    add_result = await user_repo.add_user(user)
+    add_result.ensure_ok()
 
-    fetch_result = user_repo.get_user(user.name)
+    fetch_result = await user_repo.get_user(user.name)
     assert fetch_result.is_ok()
 
 
-def test_delete_user(user_repo: UserRepository):
+@pytest.mark.asyncio
+async def test_delete_user(user_repo: UserRepository):
     user = User(name='testuser', hashed_password='hashedpassword')
-    user_repo.add_user(user).ensure_ok()
+    add_result = await user_repo.add_user(user)
+    add_result.ensure_ok()
 
-    user_repo.delete_user(user.name)
-
-
-def test_delete_non_existing_user_is_okay(user_repo: UserRepository):
-    user_repo.delete_user('testuser')
+    await user_repo.delete_user(user.name)
 
 
-def test_add_existing_user(user_repo: UserRepository):
+@pytest.mark.asyncio
+async def test_delete_non_existing_user_is_okay(user_repo: UserRepository):
+    await user_repo.delete_user('testuser')
+
+
+@pytest.mark.asyncio
+async def test_add_existing_user(user_repo: UserRepository):
     user = User(name='testuser', hashed_password='hashedpassword')
-    user_repo.add_user(user).ensure_ok()
-    add_result = user_repo.add_user(user)
+    add_result = await user_repo.add_user(user)
+    add_result.ensure_ok()
+    add_result = await user_repo.add_user(user)
     assert add_result.is_err()
     assert add_result.as_err() == UserRepositoryError.UserAlreadyExists
 
 
-def test_get_non_existing_user(user_repo: UserRepository):
-    get_result = user_repo.get_user('testuser')
+@pytest.mark.asyncio
+async def test_get_non_existing_user(user_repo: UserRepository):
+    get_result = await user_repo.get_user('testuser')
     assert get_result.is_err()
     assert get_result.as_err() == UserRepositoryError.UserNotFound

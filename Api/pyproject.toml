@@ -28,3 +28,8 @@ dependencies = [
     "typing_extensions==4.12.2",
     "uvicorn==0.30.5"
 ]
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests"
+]

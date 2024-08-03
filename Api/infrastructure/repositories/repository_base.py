@@ -1,23 +1,24 @@
 from abc import ABC
-from contextlib import contextmanager
-from typing import Callable, Generator
+from contextlib import contextmanager, asynccontextmanager
+from typing import Callable, Generator, AsyncGenerator
 
 from attr import define
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
 
 @define
 class SqlAlchemyRepository(ABC):
-    session_factory: Callable[[], Session]
+    session_factory: Callable[[], AsyncSession]
 
-    @contextmanager
-    def get_session(self) -> Generator[Session, None, None]:
+    @asynccontextmanager
+    async def get_session(self) -> AsyncGenerator[Session, None]:
         session = self.session_factory()
         try:
             yield session
-            session.commit()
+            await session.commit()
         except:
-            session.rollback()
+            await session.rollback()
             raise
         finally:
-            session.close()
+            await session.close()
