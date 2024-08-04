@@ -7,9 +7,11 @@ from domain.user import User
 from infrastructure.result import Err, Ok
 from service.auth import AuthService
 
+
 @pytest.fixture
 def password_service_mock(mocker: MockFixture):
     return mocker.Mock()
+
 
 @pytest.fixture
 def user_repository_mock(mocker: MockFixture):
@@ -19,6 +21,7 @@ def user_repository_mock(mocker: MockFixture):
 @pytest.fixture
 def some_secret_key():
     return 'some_secret_key'
+
 
 @pytest.fixture
 def some_algorithm():
@@ -51,7 +54,8 @@ async def test_authenticate_user_incorrect_password_returns_none(
         some_algorithm
 ):
     password_service_mock.verify_password.return_value = False
-    user_repository_mock.get_user.return_value = Ok(User('some_user', 'some_passwordhash'))
+    user_repository_mock.get_user.return_value = Ok(
+        User('some_user', 'some_passwordhash'))
     auth_service = AuthService(
         password_service_mock,
         user_repository_mock,
@@ -61,6 +65,7 @@ async def test_authenticate_user_incorrect_password_returns_none(
     actual = await auth_service.authenticate_user('some_user', 'some_password')
     assert actual is None
 
+
 @pytest.mark.asyncio
 async def test_authenticate_user_success(
         password_service_mock,
@@ -69,7 +74,8 @@ async def test_authenticate_user_success(
         some_algorithm
 ):
     password_service_mock.verify_password.return_value = True
-    user_repository_mock.get_user.return_value = Ok(User('some_user', 'some_passwordhash'))
+    user_repository_mock.get_user.return_value = Ok(
+        User('some_user', 'some_passwordhash'))
     auth_service = AuthService(
         password_service_mock,
         user_repository_mock,
