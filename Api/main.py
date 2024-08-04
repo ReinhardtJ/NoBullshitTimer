@@ -10,6 +10,7 @@ from sqlalchemy.orm import sessionmaker
 
 from api.auth_api import add_auth_api
 from service.auth import AuthService
+from infrastructure.auth import PasswordService
 from infrastructure.repositories.user_repository import UserRepository
 
 SECRET_KEY = '3316e78ab1c67a55640b7b00a937d18decea2f40d643cc508675e5f9793d174f'  # todo: change
@@ -18,7 +19,6 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 app = FastAPI()
 
-pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 
 load_dotenv()
@@ -32,7 +32,9 @@ AsyncSessionLocal = sessionmaker(bind=engine, class_=AsyncSession, expire_on_com
 
 user_repo = UserRepository(session_factory=AsyncSessionLocal)
 
-auth_service = AuthService(pwd_context, user_repo, SECRET_KEY, ALGORITHM)
+crypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+password_service = PasswordService(crypt_context)
+auth_service = AuthService(password_service, user_repo, SECRET_KEY, ALGORITHM)
 
 add_auth_api(app, ACCESS_TOKEN_EXPIRE_MINUTES, auth_service)
 
