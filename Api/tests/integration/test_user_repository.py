@@ -9,7 +9,7 @@ from infrastructure.repositories.user_repository import UserRepository, \
 
 @pytest_asyncio.fixture
 async def user_repo():
-    engine, session_factory = await init_async_sqlalchemy('sqlite+aiosqlite:///:memory:')
+    engine, session_factory = await init_async_sqlalchemy('sqlite+aiosqlite:///:memory:', True)
     repo = UserRepository(session_factory)
     yield repo
     await delete_async_sqlalchemy(engine)

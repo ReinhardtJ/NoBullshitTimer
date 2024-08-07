@@ -29,13 +29,10 @@ class AuthService:
         return user
 
     def create_encoded_jwt_access_token(
-            self, data: dict, expires_delta: timedelta | None = None
+            self, data: dict, expires_delta: timedelta
     ) -> str:
         to_encode = data.copy()
-        if expires_delta:
-            expire = datetime.now(timezone.utc) + expires_delta
-        else:
-            expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+        expire = datetime.now(timezone.utc) + expires_delta
         to_encode.update({'exp': expire})
         encoded_jwt = jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)
         return encoded_jwt

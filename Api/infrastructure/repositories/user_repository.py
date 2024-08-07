@@ -4,7 +4,6 @@ from attr import define
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
 
 from domain.user import User
 from infrastructure.database.user_model import UserModel

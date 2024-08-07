@@ -26,7 +26,10 @@ dependencies = [
     "SQLAlchemy==2.0.31",
     "starlette==0.37.2",
     "typing_extensions==4.12.2",
-    "uvicorn==0.30.5"
+    "uvicorn==0.30.5",
+    "pytest_mock==3.14.0",
+    "aiosqlite==0.20.0",
+    "asyncpg==0.29.0"
 ]
 
 [tool.pytest.ini_options]

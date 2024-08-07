@@ -1,6 +1,6 @@
 from abc import ABC
-from contextlib import contextmanager, asynccontextmanager
-from typing import Callable, Generator, AsyncGenerator
+from contextlib import asynccontextmanager
+from typing import Callable, AsyncGenerator
 
 from attr import define
 from sqlalchemy.ext.asyncio import AsyncSession
