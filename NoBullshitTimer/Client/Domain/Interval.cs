@@ -15,6 +15,11 @@ public abstract class Interval
     }
 
     public string Name { get; }
+
+    public override string ToString()
+    {
+        return $"Interval {Name}: {{Interval Length: {IntervalLength}}}";
+    }
 }
 
 public class Ready : Interval

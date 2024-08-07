@@ -1,10 +1,10 @@
 namespace NoBullshitTimer.Client.Domain;
 
 public record WorkoutPlan(
-    int prepareTime,
-    int workTime,
-    int restTime,
-    int cooldownTime,
-    int setsPerExercise,
-    List<string> exercises
+    TimeSpan PrepareTime,
+    TimeSpan WorkTime,
+    TimeSpan RestTime,
+    TimeSpan CooldownTime,
+    int SetsPerExercise,
+    List<string> Exercises
 );

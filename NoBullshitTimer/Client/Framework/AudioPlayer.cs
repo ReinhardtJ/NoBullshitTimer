@@ -14,6 +14,9 @@ public class AudioPlayer
 
     public async void PlaySoundIfNecessary(IntervalTimer? timer)
     {
+        if (timer is null)
+            return;
+
         switch (timer.SecondsLeft, timer.CurrentInterval)
         {
             case (3, _):
@@ -27,20 +30,20 @@ public class AudioPlayer
                 break;
         }
 
-        if (timer.SecondsLeft == timer.WorkoutPlan.workTime && timer.CurrentInterval is Work)
+        if (timer.SecondsLeft == timer.WorkoutPlan.WorkTime.TotalSecondsInt() && timer.CurrentInterval is Work)
         {
             await _playAudioFile($"{VoicePack}/Go.mp3");
         }
-        if (timer.SecondsLeft == timer.WorkoutPlan.restTime && timer.CurrentInterval is Rest)
+        if (timer.SecondsLeft == timer.WorkoutPlan.RestTime.TotalSecondsInt() && timer.CurrentInterval is Rest)
         {
             await _playAudioFile($"{VoicePack}/Rest.mp3");
         }
-        if (timer.SecondsLeft == timer.WorkoutPlan.prepareTime && timer.CurrentInterval is Prepare)
+        if (timer.SecondsLeft == timer.WorkoutPlan.PrepareTime.TotalSecondsInt() && timer.CurrentInterval is Prepare)
         {
             await _playAudioFile($"{VoicePack}/GetReady.mp3");
         }
 
-        if (timer.SecondsLeft == timer.WorkoutPlan.cooldownTime && timer.CurrentInterval is Cooldown)
+        if (timer.SecondsLeft == timer.WorkoutPlan.CooldownTime.TotalSecondsInt() && timer.CurrentInterval is Cooldown)
         {
             await _playAudioFile($"{VoicePack}/Cooldown.mp3");
         }

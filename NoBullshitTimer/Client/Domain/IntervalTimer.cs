@@ -1,3 +1,5 @@
+using NoBullshitTimer.Client.Framework;
+
 namespace NoBullshitTimer.Client.Domain;
 
 public class IntervalTimer : IDisposable, IAsyncDisposable
@@ -10,7 +12,7 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
     public int SecondsLeft { get; private set; }
     public bool TimerPaused = true;
     public WorkoutPlan WorkoutPlan { get; }
-
+    private LinkedList<Interval> _intervals;
 
     public IntervalTimer(
         WorkoutPlan plan,
@@ -19,26 +21,27 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
     {
         _onTickCallback = onTickCallback;
         WorkoutPlan = plan;
-        LinkedList<Interval> intervals = new();
-        intervals.AddLast(new Ready());
-        intervals.AddLast(new Prepare(plan.prepareTime));
-        foreach (var exercise in plan.exercises)
+        _intervals = new();
+        _intervals.AddLast(new Ready());
+        _intervals.AddLast(new Prepare(plan.PrepareTime.TotalSecondsInt()));
+        foreach (var exercise in plan.Exercises)
         {
-            for (var i = 0; i < plan.setsPerExercise; i++)
+            for (var i = 0; i < plan.SetsPerExercise; i++)
             {
-                intervals.AddLast(new Work(plan.workTime, exercise));
-                if (i == plan.setsPerExercise - 1 && exercise == plan.exercises[^1])
+                _intervals.AddLast(new Work(plan.WorkTime.TotalSecondsInt(), exercise));
+                if (i == plan.SetsPerExercise - 1 && exercise == plan.Exercises[^1])
                 {
                     break;
                 }
 
-                intervals.AddLast(new Rest(plan.restTime));
+                _intervals.AddLast(new Rest(plan.RestTime.TotalSecondsInt()));
             }
         }
-
-        intervals.AddLast(new Cooldown(plan.cooldownTime));
-        intervals.AddLast(new Done());
-        CurrentIntervalNode = intervals.First!;
+        Console.WriteLine(plan.CooldownTime);
+        Console.WriteLine(plan.CooldownTime.TotalSecondsInt());
+        _intervals.AddLast(new Cooldown(plan.CooldownTime.TotalSecondsInt()));
+        _intervals.AddLast(new Done());
+        CurrentIntervalNode = _intervals.First!;
         CurrentIntervalNr = 1;
         _timer = new Timer(_ =>
         {
@@ -106,6 +109,17 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         await _timer.DisposeAsync();
+    }
+
+    public override string ToString()
+    {
+        var repr = "";
+        repr += CurrentInterval + "\n\n";
+        foreach (var interval in _intervals)
+        {
+            repr += interval + "\n";
+        }
+        return repr;
     }
 }
 

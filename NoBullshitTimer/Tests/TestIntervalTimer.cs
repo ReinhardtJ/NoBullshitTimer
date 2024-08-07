@@ -11,10 +11,10 @@ public class TestIntervalTimer
     public void Setup()
     {
         var workoutPlan = new WorkoutPlan(
-            10,
-            40,
-            20,
-            60,
+            TimeSpan.FromSeconds(10),
+            TimeSpan.FromSeconds(40),
+            TimeSpan.FromSeconds(20),
+            TimeSpan.FromSeconds(60),
             2,
             new List<string> {"push ups", "pull ups"}
         );
@@ -177,10 +177,10 @@ public class TestIntervalTimer
     public void TestTimerSecondsLeft()
     {
         var intervalTimer = new IntervalTimer(new WorkoutPlan(
-            1,
-            3,
-            2,
-            1,
+            TimeSpan.FromSeconds(1),
+            TimeSpan.FromSeconds(3),
+            TimeSpan.FromSeconds(2),
+            TimeSpan.FromSeconds(1),
             1,
             new List<string> {"pull ups"}
         ), () => {});

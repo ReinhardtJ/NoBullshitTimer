@@ -5,6 +5,7 @@
 @using NoBullshitTimer.Client.Domain
 @using NoBullshitTimer.Client.Components
 @using NoBullshitTimer.Client.Framework
+@using NoBullshitTimer.Client.UI
 @implements IDisposable
 
 @inject IJSRuntime JsRuntime
@@ -17,7 +18,7 @@
         <p>An interval timer that just works*</p>
         <p>no ads, no subscription, no annoying UI, no unnecessary features, every device, open source and simply: <b>no bullshit</b></p>
         <br />
-        <p>voice: 
+        <p>voice:
             <b>
                 <select class="dark:bg-slate-800" @onchange="VoicePackChanged">
                     <option>default</option>
@@ -64,23 +65,27 @@
                 <div class="inline-grid grid-cols-[auto_auto_auto] gap-4">
                     <span class="flex items-center text-lg">Prepare Time</span>
                     <TextInput @bind-InputData="_prepareTimeInputRaw"/>
-                    <span>(@PrepareTimeInput s)</span>
+                    <span class="items-center">(@PrepareTimeInput)</span>
 
                     <span class="flex items-center text-lg">Work Time</span>
                     <TextInput @bind-InputData="_workTimeInputRaw"/>
-                    <span>(@WorkTimeInput s)</span>
+                    <span>(@WorkTimeInput)</span>
 
                     <span class="flex items-center text-lg">Rest Time</span>
                     <TextInput @bind-InputData="_restTimeInputRaw"/>
-                    <span>(@RestTimeInput s)</span>
+                    <span>(@RestTimeInput)</span>
 
                     <span class="flex items-center text-lg">Cooldown Time</span>
                     <TextInput @bind-InputData="_cooldownTimeInputRaw"/>
-                    <span>(@CooldownTimeInput s)</span>
+                    <span>(@CooldownTimeInput)</span>
 
                     <span class="flex items-center text-lg">Intervals</span>
                     <TextInput @bind-InputData="_nrOfIntervalsInputRaw"/>
-                    <span>(@NrOfIntervalsInput s)</span>
+                    <span></span>
+
+                    <span class="flex items-center text-lg">Total Time</span>
+                    <span class="text-right">@TotalInputTime</span>
+                    <span></span>
                 </div>
             </div>
 
@@ -171,31 +176,31 @@
     {
         if (e.Value is not null)
         {
-            _audioPlayer.VoicePack = (string)e.Value;
+            _audioPlayer.VoicePack = (string) e.Value;
         }
     }
 
-    public string SetProgress
+    private string SetProgress
     {
         get
         {
             if (_intervalTimer == null) return "";
-            var intervalsPerExercise = _intervalTimer.WorkoutPlan.setsPerExercise * 2;
+            var intervalsPerExercise = _intervalTimer.WorkoutPlan.SetsPerExercise * 2;
             var intervalInExercise = (_intervalTimer.CurrentIntervalNr - 2) % intervalsPerExercise;
             intervalInExercise = intervalInExercise == 0 ? intervalsPerExercise : intervalInExercise;
             intervalInExercise = (intervalInExercise + 1) / 2;
-            return $"{(intervalInExercise)} / {_intervalTimer.WorkoutPlan.setsPerExercise}";
+            return $"{(intervalInExercise)} / {_intervalTimer.WorkoutPlan.SetsPerExercise}";
         }
     }
 
-    public string ExerciseProgress
+    private string ExerciseProgress
     {
         get
         {
             if (_intervalTimer == null) return "";
-            var intervalsPerExercise = _intervalTimer.WorkoutPlan.setsPerExercise * 2;
+            var intervalsPerExercise = _intervalTimer.WorkoutPlan.SetsPerExercise * 2;
             var intervalInWorkout = (_intervalTimer.CurrentIntervalNr - 2);
-            var exercisesPerWorkout = _intervalTimer.WorkoutPlan.exercises.Count;
+            var exercisesPerWorkout = _intervalTimer.WorkoutPlan.Exercises.Count;
             var exerciseInWorkout = (intervalInWorkout + intervalsPerExercise - 1) / intervalsPerExercise;
             return $"{exerciseInWorkout} / {exercisesPerWorkout}";
         }
@@ -212,10 +217,10 @@
     }
 
 
-    private int PrepareTimeInput => ParseTimeToSeconds(_prepareTimeInputRaw, 10);
-    private int WorkTimeInput => ParseTimeToSeconds(_workTimeInputRaw, 40);
-    private int RestTimeInput => ParseTimeToSeconds(_restTimeInputRaw, 20);
-    private int CooldownTimeInput => ParseTimeToSeconds(_cooldownTimeInputRaw, 60);
+    private TimeSpan PrepareTimeInput => TimeFormat.ParseTime(_prepareTimeInputRaw, 10);
+    private TimeSpan WorkTimeInput => TimeFormat.ParseTime(_workTimeInputRaw, 40);
+    private TimeSpan RestTimeInput => TimeFormat.ParseTime(_restTimeInputRaw, 20);
+    private TimeSpan CooldownTimeInput => TimeFormat.ParseTime(_cooldownTimeInputRaw, 60);
 
     private int NrOfIntervalsInput
     {
@@ -234,16 +239,10 @@
         _cooldownTimeInputRaw = "01:00",
         _nrOfIntervalsInputRaw = "3";
 
-    class ExerciseInput
-    {
-        public ExerciseInput(string name)
-        {
-            Name = name;
-        }
+    private string TotalInputTime => (
+        PrepareTimeInput + ExerciseInputs.Count * NrOfIntervalsInput * (WorkTimeInput + RestTimeInput) + CooldownTimeInput
+    ).ToString();
 
-        public string Name { get; set; }
-        public Guid Id { get; } = new();
-    }
 
 
     private List<ExerciseInput> _exerciseInputsRaw = new() { new ExerciseInput ("Exercise 1") };
@@ -263,18 +262,5 @@
         var insertIndex = _exerciseInputsRaw.IndexOf(exerciseInput) + 1;
         _exerciseInputsRaw.Insert(insertIndex, new ExerciseInput ($"Exercise {insertIndex + 1}"));
         Console.WriteLine(_exerciseInputsRaw);
-    }
-
-
-    private int ParseTimeToSeconds(string time, int defaultValue)
-    {
-        var parts = time.Split(':');
-        if (parts.Length != 2)
-            return defaultValue;
-
-        if (int.TryParse(parts[0], out var minutes) && int.TryParse(parts[1], out var seconds))
-            return minutes * 60 + seconds;
-
-        return defaultValue;
     }
 }
