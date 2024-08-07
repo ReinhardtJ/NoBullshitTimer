@@ -88,9 +88,7 @@
                     <span></span>
                 </div>
             </div>
-
-            <h1 class="text-2xl py-5">Exercises</h1>
-            <div class="grid grid-cols-[auto_1fr_1fr_minmax(100px,auto)] gap-4">
+            <div class="grid grid-cols-[auto_1fr_1fr_minmax(100px,auto)] gap-4 pt-16">
                 @foreach (var exerciseInput in _exerciseInputsRaw)
                 {
                     <button class="border-2 p-2 mr-2 col-span-1" @onclick="_ => AddExercise(exerciseInput)">Add Exercise</button>
@@ -103,13 +101,18 @@
                         {
                             <button class="border-2 p-2" @onclick="_ => DeleteExercise(exerciseInput)">Delete Exercise</button>
                         }
+                        else
+                        {
+                            <button class="border-2 p-2 text-gray-500 border-gray-500" disabled>Delete Exercise</button>
+                        }
                     </div>
                 }
             </div>
-            <h1 class="text-2xl py-5">Apply Workout Plan</h1>
-            <button class="border-2 p-2 my-2" @onclick="Apply">
-                Apply
-            </button>
+            <div class="flex flex-row justify-center pt-16">
+                <button class="border-2 py-2 px-24 my-2" @onclick="Apply">
+                    Apply
+                </button>
+            </div>
         </div>
         <p>
             *please note that this is an early version of this software, so certain things might <i>not</i> work perfectly. However, the core functionality is given and thoroughly tested
