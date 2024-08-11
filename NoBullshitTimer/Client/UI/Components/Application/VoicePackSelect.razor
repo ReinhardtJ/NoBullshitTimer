@@ -1,0 +1,28 @@
+@using NoBullshitTimer.Client.Components
+@using NoBullshitTimer.Client.Framework
+@using NoBullshitTimer.Client.UI.Components.Generic
+
+
+<h2 class="text-xl">Select Voicepack</h2>
+<Dropdown
+    TValue="string"
+    Items="@VoicePacks"
+    SelectedItemChanged="OnVoicePackChanged">
+</Dropdown>
+
+@code {
+
+    [Parameter] public AudioPlayer? AudioPlayer { get; set; }
+
+    private List<DropdownItem<string>> VoicePacks { get; } = new()
+    {
+        new DropdownItem<string>("Default", "default"),
+        new DropdownItem<string>("Sven", "sven")
+    };
+
+    private async Task OnVoicePackChanged(string newValue)
+    {
+        if (AudioPlayer != null)
+            AudioPlayer.VoicePack = newValue;
+    }
+}

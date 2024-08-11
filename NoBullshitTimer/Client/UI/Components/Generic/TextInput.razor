@@ -1,0 +1,39 @@
+@using BlazorComponentUtilities
+@namespace NoBullshitTimer.Client.Components
+
+<label>
+    <input
+        class="@ClassToRender"
+        value="@InputData"
+        @oninput="UpdateInputData"
+        placeholder="@Hint"
+        @attributes="AdditionalAttributes"/>
+</label>
+
+@code {
+
+    [Parameter] public string InputData { get; set; }
+
+    [Parameter] public string Hint { get; set; } = "";
+
+    [Parameter] public EventCallback<string> InputDataChanged { get; set; }
+
+    private async Task UpdateInputData(ChangeEventArgs e)
+    {
+        await InputDataChanged.InvokeAsync(e.Value?.ToString());
+    }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object> AdditionalAttributes { get; set; }
+
+    [Parameter] public string Classes { get; set; } = "";
+
+    private string ClassToRender { get; set; } = "";
+
+    protected override void OnParametersSet()
+    {
+        ClassToRender = new CssBuilder(Classes)
+            .AddClass("bg-zinc-800 rounded-md p-2")
+            .Build();
+    }
+}

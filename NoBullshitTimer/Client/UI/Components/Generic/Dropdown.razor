@@ -1,0 +1,27 @@
+@using NoBullshitTimer.Client.Components
+@typeparam TValue
+
+<select
+    class="bg-red-900 p-2 m-2 rounded-md hover:bg-red-700"
+    value="@SelectedItem"
+    @onchange="OnSelectedItemChanged"
+>
+ @foreach (var item in Items)
+ {
+    <option class="p-2 m-2 hover:bg-zinc-500 bg-zinc-800" value="@item.Value">@item.Label</option>
+ }
+</select>
+
+@code {
+    [Parameter] public TValue SelectedItem { get; set; }
+    [Parameter] public List<DropdownItem<TValue>> Items { get; set; }
+    [Parameter] public EventCallback<TValue> SelectedItemChanged { get; set; }
+
+
+    private async Task OnSelectedItemChanged(ChangeEventArgs e)
+    {
+        SelectedItem = (TValue) e.Value;
+        await SelectedItemChanged.InvokeAsync((TValue) e.Value);
+    }
+
+}

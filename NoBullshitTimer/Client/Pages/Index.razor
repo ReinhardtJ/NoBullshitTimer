@@ -6,8 +6,8 @@
 @using NoBullshitTimer.Client.Components
 @using NoBullshitTimer.Client.Framework
 @using NoBullshitTimer.Client.UI
-@using NoBullshitTimer.Client.Framework.Components
-@using NoBullshitTimer.Client.UI.Components
+@using NoBullshitTimer.Client.UI.Components.Application
+@using NoBullshitTimer.Client.UI.Components.Generic
 @implements IDisposable
 
 @inject IJSRuntime JsRuntime
@@ -61,23 +61,23 @@
             <div class="flex justify-center">
                 <div class="inline-grid grid-cols-[auto_auto_auto] gap-4">
                     <span class="flex items-center text-lg">Prepare Time</span>
-                    <TextInput @bind-InputData="_prepareTimeInputRaw"/>
-                    <span class="inline-flex items-center">(@PrepareTimeInput)</span>
+                    <TextInput Classes="text-right" @bind-InputData="_prepareTimeInputRaw"/>
+                    <span class="inline-flex items-center text-gray-500">(@PrepareTimeInput)</span>
 
                     <span class="flex items-center text-lg">Work Time</span>
-                    <TextInput @bind-InputData="_workTimeInputRaw"/>
-                    <span class="inline-flex items-center">(@WorkTimeInput)</span>
+                    <TextInput Classes="text-right" @bind-InputData="_workTimeInputRaw"/>
+                    <span class="inline-flex items-center text-gray-500">(@WorkTimeInput)</span>
 
                     <span class="flex items-center text-lg">Rest Time</span>
-                    <TextInput @bind-InputData="_restTimeInputRaw"/>
-                    <span class="inline-flex items-center">(@RestTimeInput)</span>
+                    <TextInput Classes="text-right" @bind-InputData="_restTimeInputRaw"/>
+                    <span class="inline-flex items-center text-gray-500">(@RestTimeInput)</span>
 
                     <span class="flex items-center text-lg">Cooldown Time</span>
-                    <TextInput @bind-InputData="_cooldownTimeInputRaw"/>
-                    <span class="inline-flex items-center">(@CooldownTimeInput)</span>
+                    <TextInput Classes="text-right" @bind-InputData="_cooldownTimeInputRaw"/>
+                    <span class="inline-flex items-center text-gray-500">(@CooldownTimeInput)</span>
 
                     <span class="flex items-center text-lg">Intervals</span>
-                    <TextInput @bind-InputData="_nrOfIntervalsInputRaw"/>
+                    <TextInput Classes="text-right" @bind-InputData="_nrOfIntervalsInputRaw"/>
                     <span></span>
 
                     <span class="flex items-center text-lg">Total Time</span>
@@ -85,24 +85,23 @@
                     <span></span>
                 </div>
             </div>
-            <div class="grid grid-cols-[auto_1fr_1fr_minmax(100px,auto)] gap-4 pt-16">
+            <div class="grid grid-cols-[auto_1fr_minmax(100px,auto)] gap-4 pt-16">
                 @foreach (var exerciseInput in _exerciseInputsRaw)
                 {
                     <div class="col-span-1">
                         <Button @onclick="_ => AddExercise(exerciseInput)">Add Exercise</Button>
                     </div>
-                    <span class="col-span-1 flex items-center text-lg">Exercise</span>
-                    <div class="col-span-1">
+                    <div class="col-span-1 self-center">
                         <TextInput @bind-InputData="exerciseInput.Name"></TextInput>
                     </div>
                     <div class="col-span-1">
                         @if (_exerciseInputsRaw.Count > 1)
                         {
-                            <button class="border-2 p-2" @onclick="_ => DeleteExercise(exerciseInput)">Delete Exercise</button>
+                            <Button @onclick="_ => DeleteExercise(exerciseInput)">Delete Exercise</Button>
                         }
                         else
                         {
-                            <button class="border-2 p-2 text-gray-500 border-gray-500" disabled>Delete Exercise</button>
+                            <Button disabled>Delete Exercise</Button>
                         }
                     </div>
                 }
@@ -120,10 +119,15 @@
             </Button>
         </div>
         <Modal @bind-IsVisible="ShowSaveWorkoutModal" Title="Title">
-            This is the save workout modal
-            <TextInput></TextInput>
-            <Button>Save</Button>
-            <Button>Cancel</Button>
+            <div class="mb-6">Save the currently applied workout</div>
+            <div class="flex flex-col items-center">
+                <TextInput Hint="Workout Name"></TextInput>
+                <div class="flex flex-row justify-between">
+                    <Button>Save</Button>
+                    <Button>Cancel</Button>
+                </div>
+
+            </div>
         </Modal>
 
         <p>

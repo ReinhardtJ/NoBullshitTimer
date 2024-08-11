@@ -30,11 +30,4 @@
     <_ContentIncludedByDefault Remove="Components\TextInput.razor" />
   </ItemGroup>
 
-  <ItemGroup>
-    <AdditionalFiles Include="Framework\Components\Button.razor" />
-    <AdditionalFiles Include="Framework\Components\Dropdown.razor" />
-    <AdditionalFiles Include="Framework\Components\Modal.razor" />
-    <AdditionalFiles Include="Framework\Components\TextInput.razor" />
-  </ItemGroup>
-
 </Project>
