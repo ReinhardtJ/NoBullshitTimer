@@ -6,6 +6,8 @@
 @using NoBullshitTimer.Client.Components
 @using NoBullshitTimer.Client.Framework
 @using NoBullshitTimer.Client.UI
+@using NoBullshitTimer.Client.Framework.Components
+@using NoBullshitTimer.Client.UI.Components
 @implements IDisposable
 
 @inject IJSRuntime JsRuntime
@@ -18,14 +20,9 @@
         <p>An interval timer that just works*</p>
         <p>no ads, no subscription, no annoying UI, no unnecessary features, every device, open source and simply: <b>no bullshit</b></p>
         <br />
-        <p>voice:
-            <b>
-                <select class="dark:bg-slate-800" @onchange="VoicePackChanged">
-                    <option>default</option>
-                    <option>sven</option>
-                </select>
-            </b>
-        </p>
+        <VoicePackSelect
+            AudioPlayer="_audioPlayer"
+        ></VoicePackSelect>
     </div>
     <div class="max-w-screen-sm mx-auto">
         <div class="flex flex-col items-center">
@@ -53,45 +50,47 @@
             <div class="pb-20">
                 <div class="text-center pb-5">@PauseInformation</div>
                 <div class="flex flex-row gap-5">
-                    <button class="border-2 p-2" @onclick="_ => _intervalTimer?.GoToPreviousInterval()"> Previous Interval</button>
-                    <button class="border-2 p-2" @onclick="_ => _intervalTimer?.TogglePlayPause()">Play / Pause</button>
-                    <button class="border-2 p-2" @onclick="_ => _intervalTimer?.GoToNextInterval()"> Next Interval </button>
+                    <Button @onclick="_ => _intervalTimer?.GoToPreviousInterval()"> Previous Interval</Button>
+                    <Button @onclick="_ => _intervalTimer?.TogglePlayPause()">Play / Pause</Button>
+                    <Button @onclick="_ => _intervalTimer?.GoToNextInterval()"> Next Interval </Button>
                 </div>
             </div>
         </div>
-        <div class="pb-24">
+        <div class="pb-16">
             <h1 class="text-2xl pb-5">Edit</h1>
             <div class="flex justify-center">
                 <div class="inline-grid grid-cols-[auto_auto_auto] gap-4">
                     <span class="flex items-center text-lg">Prepare Time</span>
                     <TextInput @bind-InputData="_prepareTimeInputRaw"/>
-                    <span class="items-center">(@PrepareTimeInput)</span>
+                    <span class="inline-flex items-center">(@PrepareTimeInput)</span>
 
                     <span class="flex items-center text-lg">Work Time</span>
                     <TextInput @bind-InputData="_workTimeInputRaw"/>
-                    <span>(@WorkTimeInput)</span>
+                    <span class="inline-flex items-center">(@WorkTimeInput)</span>
 
                     <span class="flex items-center text-lg">Rest Time</span>
                     <TextInput @bind-InputData="_restTimeInputRaw"/>
-                    <span>(@RestTimeInput)</span>
+                    <span class="inline-flex items-center">(@RestTimeInput)</span>
 
                     <span class="flex items-center text-lg">Cooldown Time</span>
                     <TextInput @bind-InputData="_cooldownTimeInputRaw"/>
-                    <span>(@CooldownTimeInput)</span>
+                    <span class="inline-flex items-center">(@CooldownTimeInput)</span>
 
                     <span class="flex items-center text-lg">Intervals</span>
                     <TextInput @bind-InputData="_nrOfIntervalsInputRaw"/>
                     <span></span>
 
                     <span class="flex items-center text-lg">Total Time</span>
-                    <span class="text-right">@TotalInputTime</span>
+                    <span class="inline-flex items-center text-right">@TotalInputTime</span>
                     <span></span>
                 </div>
             </div>
             <div class="grid grid-cols-[auto_1fr_1fr_minmax(100px,auto)] gap-4 pt-16">
                 @foreach (var exerciseInput in _exerciseInputsRaw)
                 {
-                    <button class="border-2 p-2 mr-2 col-span-1" @onclick="_ => AddExercise(exerciseInput)">Add Exercise</button>
+                    <div class="col-span-1">
+                        <Button @onclick="_ => AddExercise(exerciseInput)">Add Exercise</Button>
+                    </div>
                     <span class="col-span-1 flex items-center text-lg">Exercise</span>
                     <div class="col-span-1">
                         <TextInput @bind-InputData="exerciseInput.Name"></TextInput>
@@ -108,12 +107,25 @@
                     </div>
                 }
             </div>
-            <div class="flex flex-row justify-center pt-16">
-                <button class="border-2 py-2 px-24 my-2" @onclick="Apply">
+            <div class="flex flex-col justify-center items-center pt-16">
+                <Button Classes="px-10" @onclick="Apply">
                     Apply
-                </button>
+                </Button>
             </div>
         </div>
+        <div>
+            <h1 class="text-2xl pb-5">Manage Workouts</h1>
+            <Button Classes="" @onclick="OpenSaveWorkoutModal">
+                Save Current Workout
+            </Button>
+        </div>
+        <Modal @bind-IsVisible="ShowSaveWorkoutModal" Title="Title">
+            This is the save workout modal
+            <TextInput></TextInput>
+            <Button>Save</Button>
+            <Button>Cancel</Button>
+        </Modal>
+
         <p>
             *please note that this is an early version of this software, so certain things might <i>not</i> work perfectly. However, the core functionality is given and thoroughly tested
         </p>
@@ -173,14 +185,6 @@
     {
         if (_intervalTimer == null) return "";
         return TimeSpan.FromSeconds(_intervalTimer.SecondsLeft).ToString("mm\\:ss");
-    }
-
-    private void VoicePackChanged(ChangeEventArgs e)
-    {
-        if (e.Value is not null)
-        {
-            _audioPlayer.VoicePack = (string) e.Value;
-        }
     }
 
     private string SetProgress
@@ -266,4 +270,11 @@
         _exerciseInputsRaw.Insert(insertIndex, new ExerciseInput ($"Exercise {insertIndex + 1}"));
         Console.WriteLine(_exerciseInputsRaw);
     }
+
+    private bool ShowSaveWorkoutModal { get; set; } = false;
+    private void OpenSaveWorkoutModal()
+    {
+        ShowSaveWorkoutModal = true;
+    }
+
 }
