@@ -2,16 +2,15 @@
 
 @page "/"
 
+@using NoBullshitTimer.Client.Application
 @using NoBullshitTimer.Client.Domain
 @using NoBullshitTimer.Client.Components
 @using NoBullshitTimer.Client.Framework
 @using NoBullshitTimer.Client.UI
 @using NoBullshitTimer.Client.UI.Components.Application
 @using NoBullshitTimer.Client.UI.Components.Generic
+@using OneOf.Monads
 @implements IDisposable
-
-@inject IJSRuntime JsRuntime
-
 
 <PageTitle>Index</PageTitle>
 <div class="dark:text-slate-100 p-12">
@@ -101,7 +100,7 @@
                         }
                         else
                         {
-                            <Button disabled>Delete Exercise</Button>
+                            <Button ButtonType="ButtonType.Disabled">Delete Exercise</Button>
                         }
                     </div>
                 }
@@ -114,19 +113,41 @@
         </div>
         <div>
             <h1 class="text-2xl pb-5">Manage Workouts</h1>
-            <Button Classes="" @onclick="OpenSaveWorkoutModal">
-                Save Current Workout
-            </Button>
+            <div class="flex flex-row">
+                <Button @onclick="OpenSaveWorkoutModal">
+                    Save Current Workout
+                </Button>
+                @if (SelectedWorkoutPlan == null)
+                {
+                    <Button ButtonType="ButtonType.Disabled">
+                        Load Workout
+                    </Button>
+                }
+                else
+                {
+                    <Button @onclick="LoadSelectedWorkoutPlan">
+                        Load Workout
+                    </Button>
+                }
+                <Dropdown
+                    TValue="WorkoutPlan"
+                    Items="AllWorkoutPlans"
+                    SelectedItemChanged="OnSelectedWorkoutPlanChanged"></Dropdown>
+            </div>
+
         </div>
-        <Modal @bind-IsVisible="ShowSaveWorkoutModal" Title="Title">
+        <Modal @bind-IsVisible="ShowSaveWorkoutModal" Title="Save Current Workout">
             <div class="mb-6">Save the currently applied workout</div>
             <div class="flex flex-col items-center">
-                <TextInput Hint="Workout Name"></TextInput>
-                <div class="flex flex-row justify-between">
-                    <Button>Save</Button>
-                    <Button>Cancel</Button>
-                </div>
-
+                <TextInput Classes="mb-6" Hint="Workout Name" @bind-InputData="_workoutToSaveName"></TextInput>
+                @if (_workoutToSaveName == "")
+                {
+                    <Button ButtonType="ButtonType.Disabled">Save</Button>
+                }
+                else
+                {
+                    <Button @onclick="AddWorkoutPlan">Save</Button>
+                }
             </div>
         </Modal>
 
@@ -136,7 +157,11 @@
     </div>
 </div>
 
+@inject IJSRuntime JsRuntime
+@inject IWorkoutPlanStore WorkoutPlanStore
+
 @code {
+
     private IntervalTimer? _intervalTimer;
     private AudioPlayer? _audioPlayer;
 
@@ -152,6 +177,8 @@
         _intervalTimer?.Dispose();
     }
 
+
+
     private void Apply()
     {
         var workoutPlan = new WorkoutPlan(
@@ -162,6 +189,11 @@
             NrOfIntervalsInput,
             ExerciseInputs
         );
+        Apply(workoutPlan);
+    }
+
+    private void Apply(WorkoutPlan workoutPlan)
+    {
         if (!Validate(workoutPlan))
         {
             // display warning
@@ -185,7 +217,7 @@
         return true;
     }
 
-    public string SecondsLeftFormatted()
+    private string SecondsLeftFormatted()
     {
         if (_intervalTimer == null) return "";
         return TimeSpan.FromSeconds(_intervalTimer.SecondsLeft).ToString("mm\\:ss");
@@ -218,7 +250,7 @@
     }
 
 
-    public string PauseInformation
+    private string PauseInformation
     {
         get
         {
@@ -256,7 +288,10 @@
 
 
 
-    private List<ExerciseInput> _exerciseInputsRaw = new() { new ExerciseInput ("Exercise 1") };
+    private readonly List<ExerciseInput> _exerciseInputsRaw = new()
+    {
+        new ExerciseInput ("Exercise 1")
+    };
 
     private List<string> ExerciseInputs => _exerciseInputsRaw
         .Select(exerciseInput => exerciseInput.Name)
@@ -275,10 +310,39 @@
         Console.WriteLine(_exerciseInputsRaw);
     }
 
-    private bool ShowSaveWorkoutModal { get; set; } = false;
+    private string _workoutToSaveName = "";
+    private string? _lastSavedOrLoadedWorkoutName = null;
+    private DropdownItem<WorkoutPlan> SelectedWorkoutPlan { get; set; }
+    private List<DropdownItem<WorkoutPlan>> AllWorkoutPlans => WorkoutPlanStore.GetAllWorkoutPlans()
+        .Select((kv, i) => new DropdownItem<WorkoutPlan>(kv.Key, kv.Value))
+        .ToList();
+
+
+    private void LoadSelectedWorkoutPlan()
+    {
+        if (SelectedWorkoutPlan == null)
+            return;
+
+        Apply(SelectedWorkoutPlan.Value);
+    }
+
+    private bool ShowSaveWorkoutModal { get; set; }
     private void OpenSaveWorkoutModal()
     {
         ShowSaveWorkoutModal = true;
+    }
+
+
+    private void AddWorkoutPlan()
+    {
+        WorkoutPlanStore.Add(_intervalTimer.WorkoutPlan, _workoutToSaveName);
+        _lastSavedOrLoadedWorkoutName = _workoutToSaveName;
+        ShowSaveWorkoutModal = false;
+    }
+
+    private async Task OnSelectedWorkoutPlanChanged(DropdownItem<WorkoutPlan> newSelectedWorkoutPlan)
+    {
+        SelectedWorkoutPlan = newSelectedWorkoutPlan;
     }
 
 }

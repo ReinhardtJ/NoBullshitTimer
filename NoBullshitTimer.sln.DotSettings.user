@@ -1,8 +1,11 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=dd7af012_002Dc3b8_002D4cbf_002D8bef_002D44fb74d25058/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="TestIntervalTimer" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::0E4D518A-9C4A-404E-8ABC-DDBA86A745B9::net7.0::NoBullshitTimer.Tests.TestIntervalTimer&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::0E4D518A-9C4A-404E-8ABC-DDBA86A745B9::net7.0::NoBullshitTimer.Tests.Learning.TestTimeSpan.TestTimeSpanToSeconds&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::0E4D518A-9C4A-404E-8ABC-DDBA86A745B9::net7.0::NoBullshitTimer.Tests.Framework.TestTimeFormat.TestParseTime&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
+  &lt;Or&gt;&#xD;
+    &lt;TestAncestor&gt;&#xD;
+      &lt;TestId&gt;NUnit3x::0E4D518A-9C4A-404E-8ABC-DDBA86A745B9::net7.0::NoBullshitTimer.Tests.TestIntervalTimer&lt;/TestId&gt;&#xD;
+      &lt;TestId&gt;NUnit3x::0E4D518A-9C4A-404E-8ABC-DDBA86A745B9::net7.0::NoBullshitTimer.Tests.Learning.TestTimeSpan.TestTimeSpanToSeconds&lt;/TestId&gt;&#xD;
+      &lt;TestId&gt;NUnit3x::0E4D518A-9C4A-404E-8ABC-DDBA86A745B9::net7.0::NoBullshitTimer.Tests.Framework.TestTimeFormat.TestParseTime&lt;/TestId&gt;&#xD;
+    &lt;/TestAncestor&gt;&#xD;
+    &lt;ProjectFile&gt;0E4D518A-9C4A-404E-8ABC-DDBA86A745B9/d:Application/f:TestInMemoryWorkoutPlanStore.cs&lt;/ProjectFile&gt;&#xD;
+  &lt;/Or&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

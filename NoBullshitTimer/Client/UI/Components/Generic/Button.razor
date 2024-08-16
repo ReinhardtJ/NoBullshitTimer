@@ -1,5 +1,6 @@
 @using BlazorComponentUtilities
-<button class="@ClassToRender" @attributes="AdditionalAttributes">
+@using NoBullshitTimer.Client.Components
+<button class="@ClassToRender" @attributes="AdditionalAttributes" disabled="@(ButtonType == ButtonType.Disabled)">
     @ChildContent
 </button>
 
@@ -11,14 +12,19 @@
 
     [Parameter] public string Classes { get; set; } = "";
 
+    [Parameter] public ButtonType ButtonType { get; set; } = ButtonType.Primary;
+
     private string ClassToRender { get; set; } = "";
 
     protected override void OnParametersSet()
     {
         ClassToRender = new CssBuilder(Classes)
-            // .AddClass("border-2 border-red-700 p-2 m-2 rounded-md hover:bg-red-900")
-            .AddClass("bg-red-900 p-2 m-2 rounded-md hover:bg-red-700")
+            .AddClass("p-2 m-2 rounded-md")
+            .AddClass("bg-red-900 hover:bg-red-700", ButtonType == ButtonType.Primary)
+            .AddClass("bg-zinc-800 hover:bg-zinc-500", ButtonType == ButtonType.Secondary)
+            .AddClass("bg-zinc-800 text-gray-400", ButtonType == ButtonType.Disabled)
             .Build();
     }
+
 
 }

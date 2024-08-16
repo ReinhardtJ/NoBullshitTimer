@@ -3,25 +3,32 @@
 
 <select
     class="bg-red-900 p-2 m-2 rounded-md hover:bg-red-700"
-    value="@SelectedItem"
     @onchange="OnSelectedItemChanged"
 >
- @foreach (var item in Items)
+ @for (var i = 0; i < Items.Count; i++)
  {
-    <option class="p-2 m-2 hover:bg-zinc-500 bg-zinc-800" value="@item.Value">@item.Label</option>
+    <option class="p-2 m-2 hover:bg-zinc-500 bg-zinc-800" value="@i">@Items[i].Label</option>
  }
 </select>
 
 @code {
-    [Parameter] public TValue SelectedItem { get; set; }
-    [Parameter] public List<DropdownItem<TValue>> Items { get; set; }
-    [Parameter] public EventCallback<TValue> SelectedItemChanged { get; set; }
+    [Parameter] public DropdownItem<TValue>? SelectedItem { get; set; }
+    [Parameter] public List<DropdownItem<TValue>> Items { get; set; } = new();
+    [Parameter] public EventCallback<DropdownItem<TValue>> SelectedItemChanged { get; set; }
 
+    protected override async Task OnInitializedAsync()
+    {
+        if (Items.Count != 0)
+            SelectedItem = Items[0];
+    }
 
     private async Task OnSelectedItemChanged(ChangeEventArgs e)
     {
-        SelectedItem = (TValue) e.Value;
-        await SelectedItemChanged.InvokeAsync((TValue) e.Value);
+        if (e.Value == null)
+            return;
+        var selectedItemIndex = int.Parse((string) e.Value);
+        SelectedItem = Items[selectedItemIndex];
+        await SelectedItemChanged.InvokeAsync(SelectedItem);
     }
 
 }

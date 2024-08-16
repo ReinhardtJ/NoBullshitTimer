@@ -8,5 +8,5 @@ public class ExerciseInput
     }
 
     public string Name { get; set; }
-    public Guid Id { get; } = new();
+    public Guid Id { get; } = Guid.NewGuid();
 }

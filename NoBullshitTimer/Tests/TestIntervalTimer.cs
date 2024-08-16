@@ -1,4 +1,5 @@
 using NoBullshitTimer.Client.Domain;
+using NoBullshitTimer.Tests.Domain;
 using NUnit.Framework;
 
 namespace NoBullshitTimer.Tests;
@@ -10,14 +11,7 @@ public class TestIntervalTimer
     [SetUp]
     public void Setup()
     {
-        var workoutPlan = new WorkoutPlan(
-            TimeSpan.FromSeconds(10),
-            TimeSpan.FromSeconds(40),
-            TimeSpan.FromSeconds(20),
-            TimeSpan.FromSeconds(60),
-            2,
-            new List<string> {"push ups", "pull ups"}
-        );
+        var workoutPlan = Fixtures.SomeWorkoutPlan();
         _intervalTimer = new IntervalTimer(workoutPlan, () => {});
     }
 
