@@ -20,4 +20,13 @@ public class TimeFormat
 
         return TimeSpan.FromSeconds(defaultSeconds);
     }
+
+
+    /**
+     * Unparses a TimeSpan object into a string with the format mm:ss
+     */
+    public static string UnparseTime(TimeSpan time)
+    {
+        return time.ToString(@"mm\:ss");
+    }
 }

@@ -57,4 +57,21 @@ public class TestTimeFormat
             Is.EqualTo(TimeSpan.FromSeconds(60))
         );
     }
+
+    [Test]
+    public void TestUnparseTime()
+    {
+        Assert.That(
+            TimeFormat.UnparseTime(TimeSpan.FromSeconds(0)),
+            Is.EqualTo("00:00")
+        );
+        Assert.That(
+            TimeFormat.UnparseTime(TimeSpan.FromSeconds(300)),
+            Is.EqualTo("05:00")
+        );
+        Assert.That(
+            TimeFormat.UnparseTime(TimeSpan.FromSeconds(330)),
+            Is.EqualTo("05:30")
+        );
+    }
 }

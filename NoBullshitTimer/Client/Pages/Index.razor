@@ -106,7 +106,7 @@
                 }
             </div>
             <div class="flex flex-col justify-center items-center pt-16">
-                <Button Classes="px-10" @onclick="Apply">
+                <Button Classes="px-10" @onclick="ApplyCurrentInput">
                     Apply
                 </Button>
             </div>
@@ -146,7 +146,7 @@
                 }
                 else
                 {
-                    <Button @onclick="AddWorkoutPlan">Save</Button>
+                    <Button @onclick="SaveWorkoutPlan">Save</Button>
                 }
             </div>
         </Modal>
@@ -164,24 +164,32 @@
 
     private IntervalTimer? _intervalTimer;
     private AudioPlayer? _audioPlayer;
-
+    private WorkoutPlan? _workoutPlan;
 
     protected override async Task OnInitializedAsync()
     {
-        Apply();
+        _audioPlayer = new AudioPlayer(
+            async fileName => await JsRuntime.InvokeVoidAsync("playSound", $"/audio/{fileName}")
+        );
+        ApplyCurrentInput();
     }
 
 
-    public void Dispose()
+
+    private void ApplyCurrentInput()
     {
         _intervalTimer?.Dispose();
+        SetWorkoutPlanToInput();
+        if (!ValidateInput())
+        {
+            return;
+        }
+        _intervalTimer = new IntervalTimer(_workoutPlan, OnTimerTick);
     }
 
-
-
-    private void Apply()
+    private void SetWorkoutPlanToInput()
     {
-        var workoutPlan = new WorkoutPlan(
+        _workoutPlan = new WorkoutPlan(
             PrepareTimeInput,
             WorkTimeInput,
             RestTimeInput,
@@ -189,22 +197,18 @@
             NrOfIntervalsInput,
             ExerciseInputs
         );
-        Apply(workoutPlan);
     }
 
-    private void Apply(WorkoutPlan workoutPlan)
+    private void SetInputToWorkoutPlan(WorkoutPlan workoutPlan)
     {
-        if (!Validate(workoutPlan))
-        {
-            // display warning
-            return;
-        }
-        Dispose();
-        _audioPlayer = new AudioPlayer(
-            async fileName => await JsRuntime.InvokeVoidAsync("playSound", $"/audio/{fileName}")
-        );
-        _intervalTimer = new IntervalTimer(workoutPlan, OnTimerTick);
+        _prepareTimeInputRaw = TimeFormat.UnparseTime(workoutPlan.PrepareTime);
+        _workTimeInputRaw = TimeFormat.UnparseTime(workoutPlan.WorkTime);
+        _restTimeInputRaw = TimeFormat.UnparseTime(workoutPlan.RestTime);
+        _cooldownTimeInputRaw = TimeFormat.UnparseTime(workoutPlan.CooldownTime);
+        _nrOfIntervalsInputRaw = workoutPlan.SetsPerExercise.ToString();
+        _exerciseInputsRaw = workoutPlan.Exercises.Select(exercise => new ExerciseInput(exercise)).ToList();
     }
+
 
     private void OnTimerTick()
     {
@@ -212,7 +216,7 @@
         InvokeAsync(StateHasChanged);
     }
 
-    private bool Validate(WorkoutPlan workoutPlan)
+    private bool ValidateInput()
     {
         return true;
     }
@@ -288,7 +292,7 @@
 
 
 
-    private readonly List<ExerciseInput> _exerciseInputsRaw = new()
+    private List<ExerciseInput> _exerciseInputsRaw = new()
     {
         new ExerciseInput ("Exercise 1")
     };
@@ -310,6 +314,8 @@
         Console.WriteLine(_exerciseInputsRaw);
     }
 
+
+
     private string _workoutToSaveName = "";
     private string? _lastSavedOrLoadedWorkoutName = null;
     private DropdownItem<WorkoutPlan> SelectedWorkoutPlan { get; set; }
@@ -323,7 +329,8 @@
         if (SelectedWorkoutPlan == null)
             return;
 
-        Apply(SelectedWorkoutPlan.Value);
+        SetInputToWorkoutPlan(SelectedWorkoutPlan.Value);
+        ApplyCurrentInput();
     }
 
     private bool ShowSaveWorkoutModal { get; set; }
@@ -333,16 +340,22 @@
     }
 
 
-    private void AddWorkoutPlan()
+    private void SaveWorkoutPlan()
     {
-        WorkoutPlanStore.Add(_intervalTimer.WorkoutPlan, _workoutToSaveName);
+        WorkoutPlanStore.Add(_workoutPlan, _workoutToSaveName);
         _lastSavedOrLoadedWorkoutName = _workoutToSaveName;
+        SelectedWorkoutPlan = AllWorkoutPlans.Find(plan => )
         ShowSaveWorkoutModal = false;
     }
 
     private async Task OnSelectedWorkoutPlanChanged(DropdownItem<WorkoutPlan> newSelectedWorkoutPlan)
     {
         SelectedWorkoutPlan = newSelectedWorkoutPlan;
+    }
+
+    public void Dispose()
+    {
+        _intervalTimer?.Dispose();
     }
 
 }
