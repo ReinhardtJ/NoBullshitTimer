@@ -344,7 +344,7 @@
     {
         WorkoutPlanStore.Add(_workoutPlan, _workoutToSaveName);
         _lastSavedOrLoadedWorkoutName = _workoutToSaveName;
-        SelectedWorkoutPlan = AllWorkoutPlans.Find(plan => )
+        SelectedWorkoutPlan = AllWorkoutPlans.Find(plan => plan.Label == _workoutToSaveName);
         ShowSaveWorkoutModal = false;
     }
 
