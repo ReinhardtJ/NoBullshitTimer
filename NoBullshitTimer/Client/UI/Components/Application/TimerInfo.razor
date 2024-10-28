@@ -52,7 +52,8 @@
 @code {
     private string SecondsLeftFormatted()
     {
-        if (Timer == null) return "";
+        if (Timer == null)
+            return "";
         return TimeSpan.FromSeconds(Timer.SecondsLeft).ToString("mm\\:ss");
     }
 
@@ -60,7 +61,8 @@
     {
         get
         {
-            if (Timer == null) return "";
+            if (Timer == null)
+                return "";
             var intervalsPerExercise = Timer.Workout.SetsPerExercise * 2;
             var intervalInExercise = (Timer.CurrentIntervalNr - 2) % intervalsPerExercise;
             intervalInExercise = intervalInExercise == 0 ? intervalsPerExercise : intervalInExercise;
@@ -73,7 +75,8 @@
     {
         get
         {
-            if (Timer == null) return "";
+            if (Timer == null)
+                return "";
             var intervalsPerExercise = Timer.Workout.SetsPerExercise * 2;
             var intervalInWorkout = (Timer.CurrentIntervalNr - 2);
             var exercisesPerWorkout = Timer.Workout.Exercises.Count;
@@ -86,7 +89,8 @@
     {
         get
         {
-            if (Timer == null) return "";
+            if (Timer == null)
+                return "";
             return Timer.TimerPaused ? "Timer Paused" : "Timer Running";
         }
     }
@@ -95,5 +99,4 @@
     {
         Timer.OnTimerStateChanged += StateHasChanged;
     }
-
 }

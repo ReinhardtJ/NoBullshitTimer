@@ -31,27 +31,18 @@ public class AudioPlayer
         }
 
         if (timer.SecondsLeft == timer.Workout.ExerciseTime.TotalSecondsInt() && timer.CurrentInterval is Work)
-        {
             await _playAudioFile($"{VoicePack}/Go.mp3");
-        }
+
         if (timer.SecondsLeft == timer.Workout.RestTime.TotalSecondsInt() && timer.CurrentInterval is Rest)
-        {
             await _playAudioFile($"{VoicePack}/Rest.mp3");
-        }
+
         if (timer.SecondsLeft == timer.Workout.PrepareTime.TotalSecondsInt() && timer.CurrentInterval is Prepare)
-        {
             await _playAudioFile($"{VoicePack}/GetReady.mp3");
-        }
 
         if (timer.SecondsLeft == timer.Workout.CooldownTime.TotalSecondsInt() && timer.CurrentInterval is Cooldown)
-        {
             await _playAudioFile($"{VoicePack}/Cooldown.mp3");
-        }
 
         if (timer.CurrentInterval is Done)
-        {
             await _playAudioFile($"{VoicePack}/WorkoutComplete.mp3");
-        }
     }
-
 }

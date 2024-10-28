@@ -11,11 +11,9 @@ public class InMemoryWorkoutStore : IWorkoutStore
     {
         var result = _savedWorkouts.TryAdd(name, workout);
         if (!result)
-        {
             throw new AddingWorkoutException(
                 $"Can't add workout \"{name}\" to the store because a workout with that name already exists"
             );
-        }
     }
 
     public Workout Get(string name)

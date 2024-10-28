@@ -35,9 +35,7 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
             {
                 _intervals.AddLast(new Work(workout.ExerciseTime.TotalSecondsInt(), exercise));
                 if (i == workout.SetsPerExercise - 1 && exercise == workout.Exercises[^1])
-                {
                     break;
-                }
 
                 _intervals.AddLast(new Rest(workout.RestTime.TotalSecondsInt()));
             }
@@ -51,9 +49,8 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
         SecondsLeft = CurrentIntervalNode.Value.IntervalLength;
 
         if (_timer != null)
-        {
             _timer.Dispose();
-        }
+        
         _timer = new Timer(_ =>
         {
             if (TimerPaused)
@@ -78,9 +75,7 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
     public void GoToPreviousInterval()
     {
         if (CurrentIntervalNode?.Previous is null)
-        {
             return;
-        }
 
         if (CurrentIntervalNode.Value.SecondsIntoInterval(SecondsLeft) <= 5)
         {
@@ -90,22 +85,18 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
 
         SecondsLeft = CurrentIntervalNode.Value.IntervalLength;
         if (CurrentInterval is Ready)
-        {
             TimerPaused = true;
-        }
+
         OnTimerStateChanged.Invoke();
     }
 
     public void GoToNextInterval()
     {
         if (CurrentIntervalNode?.Next is null)
-        {
             return;
-        }
+
         if (NextInterval is Done)
-        {
             TimerPaused = true;
-        }
 
         CurrentIntervalNode = CurrentIntervalNode.Next;
         SecondsLeft = CurrentIntervalNode.Value.IntervalLength;
@@ -126,9 +117,7 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         if (_timer != null)
-        {
             await _timer.DisposeAsync();
-        }
     }
 
     public override string ToString()
@@ -136,9 +125,7 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
         var repr = "";
         repr += CurrentInterval + "\n\n";
         foreach (var interval in _intervals)
-        {
             repr += interval + "\n";
-        }
         return repr;
     }
 }
