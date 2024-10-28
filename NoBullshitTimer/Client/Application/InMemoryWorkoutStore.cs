@@ -4,10 +4,10 @@ namespace NoBullshitTimer.Client.Application;
 
 public class InMemoryWorkoutStore : IWorkoutStore
 {
-    private readonly Dictionary<string, Workout> _savedWorkouts = new();
+    private readonly Dictionary<string, Workout?> _savedWorkouts = new();
 
 
-    public void Add(Workout workout, string name)
+    public void Add(Workout? workout, string name)
     {
         var result = _savedWorkouts.TryAdd(name, workout);
         if (!result)

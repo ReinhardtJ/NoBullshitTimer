@@ -26,7 +26,7 @@ public class Workout
         Exercises = exercises;
     }
 
-    public static Workout GetDefaultWorkout()
+    public static Workout? GetDefaultWorkout()
     {
         return new Workout(
             TimeSpan.FromSeconds(10),

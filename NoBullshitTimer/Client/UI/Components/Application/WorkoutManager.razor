@@ -57,8 +57,8 @@
     }
 
     private string _workoutToSaveName = "";
-    private DropdownItem<Workout> SelectedWorkout { get; set; }
-    private List<DropdownItem<Workout>> AllWorkoutPlans => WorkoutStore.GetAllWorkouts()
+    private DropdownItem<Workout?> SelectedWorkout { get; set; }
+    private List<DropdownItem<Workout?>> AllWorkoutPlans => WorkoutStore.GetAllWorkouts()
         .Select((kv, i) => new DropdownItem<Workout>(kv.Key, kv.Value))
         .ToList();
 
@@ -79,7 +79,7 @@
 
 
 
-    private async Task OnSelectedWorkoutPlanChanged(DropdownItem<Workout> newSelectedWorkoutPlan)
+    private async Task OnSelectedWorkoutPlanChanged(DropdownItem<Workout?> newSelectedWorkoutPlan)
     {
         SelectedWorkout = newSelectedWorkoutPlan;
     }

@@ -6,16 +6,16 @@ namespace NoBullshitTimer.Client.Domain;
 public class IntervalTimer : IDisposable, IAsyncDisposable
 {
 
-    private Timer _timer;
-    private LinkedListNode<Interval> CurrentIntervalNode { get; set; }
+    private Timer? _timer;
+    private LinkedListNode<Interval>? CurrentIntervalNode { get; set; }
 
-    public event Action OnTimerTick = () => { };
+    public event Action OnTimerStateChanged = () => { };
 
     public int CurrentIntervalNr { get; private set; }
     public int SecondsLeft { get; private set; }
     public bool TimerPaused = true;
-    public Workout Workout { get; set; }
-    private LinkedList<Interval> _intervals;
+    public Workout? Workout { get; set; }
+    private LinkedList<Interval> _intervals = new();
 
     public IntervalTimer(IWorkoutState workoutState)
     {
@@ -23,7 +23,7 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
         InitIntervalTimer(workoutState.Workout);
     }
 
-    private void InitIntervalTimer(Workout workout)
+    private void InitIntervalTimer(Workout? workout)
     {
         Workout = workout;
         _intervals = new();
@@ -48,17 +48,24 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
         _intervals.AddLast(new Done());
         CurrentIntervalNode = _intervals.First!;
         CurrentIntervalNr = 1;
+        SecondsLeft = CurrentIntervalNode.Value.IntervalLength;
+
+        if (_timer != null)
+        {
+            _timer.Dispose();
+        }
         _timer = new Timer(_ =>
         {
             if (TimerPaused)
                 return;
             Tick();
-            OnTimerTick.Invoke();
+            OnTimerStateChanged.Invoke();
         }, null, 0L, 1000L);
+        OnTimerStateChanged.Invoke();
     }
 
-    public Interval CurrentInterval => CurrentIntervalNode.Value;
-    public Interval? NextInterval => CurrentIntervalNode.Next?.Value;
+    public Interval? CurrentInterval => CurrentIntervalNode?.Value;
+    public Interval? NextInterval => CurrentIntervalNode?.Next?.Value;
 
     public void Tick()
     {
@@ -70,7 +77,10 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
 
     public void GoToPreviousInterval()
     {
-        if (CurrentIntervalNode.Previous is null) return;
+        if (CurrentIntervalNode?.Previous is null)
+        {
+            return;
+        }
 
         if (CurrentIntervalNode.Value.SecondsIntoInterval(SecondsLeft) <= 5)
         {
@@ -80,13 +90,15 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
 
         SecondsLeft = CurrentIntervalNode.Value.IntervalLength;
         if (CurrentInterval is Ready)
+        {
             TimerPaused = true;
-        OnTimerTick.Invoke();
+        }
+        OnTimerStateChanged.Invoke();
     }
 
     public void GoToNextInterval()
     {
-        if (CurrentIntervalNode.Next is null)
+        if (CurrentIntervalNode?.Next is null)
         {
             return;
         }
@@ -98,7 +110,7 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
         CurrentIntervalNode = CurrentIntervalNode.Next;
         SecondsLeft = CurrentIntervalNode.Value.IntervalLength;
         CurrentIntervalNr += 1;
-        OnTimerTick.Invoke();
+        OnTimerStateChanged.Invoke();
     }
 
     public void TogglePlayPause()
@@ -108,12 +120,15 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
 
     public void Dispose()
     {
-        _timer.Dispose();
+        _timer?.Dispose();
     }
 
     public async ValueTask DisposeAsync()
     {
-        await _timer.DisposeAsync();
+        if (_timer != null)
+        {
+            await _timer.DisposeAsync();
+        }
     }
 
     public override string ToString()

@@ -93,7 +93,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Timer.OnTimerTick += StateHasChanged;
+        Timer.OnTimerStateChanged += StateHasChanged;
     }
 
 }

@@ -1,6 +1,5 @@
 @using NoBullshitTimer.Client.Application
 @using NoBullshitTimer.Client.Domain
-@using NoBullshitTimer.Client.Framework
 @using NoBullshitTimer.Client.Components
 @using NoBullshitTimer.Client.UI.Components.Generic
 <div class="pb-16">
@@ -35,39 +34,47 @@
     <div class="grid grid-cols-[auto_1fr_auto_auto_minmax(100px,auto)] gap-4 pt-16">
         @foreach (var exerciseInput in _workoutForm.Exercises)
         {
-        <div class="col-span-1">
-            <Button @onclick="_ => AddExercise(exerciseInput)">
-                <Icon Type="IconType.Add" />
-            </Button>
-        </div>
-        <div class="col-span-1 self-center">
-            <TextInput @bind-InputData="exerciseInput.Name"></TextInput>
-        </div>
-        <div class="col-span-1">
-            <Button >
-                <Icon Type="IconType.Up" />
-            </Button>
-        </div>
-        <div class="col-span-1">
-            <Button >
-                <Icon Type="IconType.Down" />
-            </Button>
-        </div>
-        <div class="col-span-1">
-            @if (_workoutForm.Exercises.Count > 1)
-            {
-            <Button @onclick="_ => DeleteExercise(exerciseInput)">
-                <Icon Type="IconType.Close" />
-            </Button>
-            }
-            else
-            {
-            <Button ButtonType="ButtonType.Disabled">
-                <Icon Type="IconType.Close" />
-            </Button>
-            }
-        </div>
+            <div class="col-span-1">
+                <Button @onclick="_ => _workoutForm.AddExercise(exerciseInput)">
+                    <Icon Type="IconType.Add" />
+                </Button>
+            </div>
+            <div class="col-span-1 self-center">
+                <TextInput @bind-InputData="exerciseInput.Name"></TextInput>
+            </div>
+            <div class="col-span-1">
+                <Button >
+                    <Icon Type="IconType.Up" />
+                </Button>
+            </div>
+            <div class="col-span-1">
+                <Button >
+                    <Icon Type="IconType.Down" />
+                </Button>
+            </div>
+            <div class="col-span-1">
+                @if (_workoutForm.Exercises.Count > 1)
+                {
+                    <Button @onclick="_ => _workoutForm.DeleteExercise(exerciseInput)">
+                        <Icon Type="IconType.Close" />
+                    </Button>
+                }
+                else
+                {
+                    <Button ButtonType="ButtonType.Disabled">
+                        <Icon Type="IconType.Close" />
+                    </Button>
+                }
+            </div>
         }
+    </div>
+    <div class="flex flex-row justify-center">
+        <Button
+            ButtonType="_workoutForm.Dirty ? ButtonType.Primary : ButtonType.Disabled"
+            @onclick="ApplyCurrentInput"
+        >
+            Apply Changes
+        </Button>
     </div>
 </div>
 
@@ -77,20 +84,7 @@
 
 @code {
     private WorkoutForm _workoutForm = WorkoutForm.GetDefaultWorkoutForm();
-    private Workout EditableWorkout => WorkoutMapper.ToDomain(_workoutForm);
-
-    private void DeleteExercise(ExerciseInput exerciseInput)
-    {
-        _workoutForm.Exercises.Remove(exerciseInput);
-        ApplyCurrentInput();
-    }
-
-    private void AddExercise(ExerciseInput exerciseInput)
-    {
-        var insertIndex = _workoutForm.Exercises.IndexOf(exerciseInput) + 1;
-        _workoutForm.Exercises.Insert(insertIndex, new ExerciseInput ($"Exercise {insertIndex + 1}"));
-        ApplyCurrentInput();
-    }
+    private Workout? EditableWorkout => WorkoutMapper.ToDomain(_workoutForm);
 
 
     private string TotalInputTime => (
@@ -105,6 +99,7 @@
     public void ApplyCurrentInput()
     {
         WorkoutState.Workout = EditableWorkout;
+        _workoutForm.Dirty = false;
     }
 
     protected override async Task OnInitializedAsync()

@@ -4,15 +4,15 @@ namespace NoBullshitTimer.Client.Application;
 
 public class WorkoutState : IWorkoutState
 {
-    private Workout _workout;
-    public event Action<Workout> OnWorkoutChanged = _ => { };
+    private Workout? _workout;
+    public event Action<Workout?> OnWorkoutChanged = _ => { };
 
     public WorkoutState()
     {
         _workout = Workout.GetDefaultWorkout();
     }
 
-    public Workout Workout
+    public Workout? Workout
     {
         get => _workout;
         set

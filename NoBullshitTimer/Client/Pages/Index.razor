@@ -33,7 +33,7 @@
 
 @code {
     AudioPlayer _audioPlayer;
-    private void OnTimerTick()
+    private void OnTimerStateChanged()
     {
         _audioPlayer?.PlaySoundIfNecessary(Timer);
         Console.WriteLine("OnTimerTick in Index.razor");
@@ -42,7 +42,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Timer.OnTimerTick += OnTimerTick;
+        Timer.OnTimerStateChanged += OnTimerStateChanged;
         _audioPlayer = new AudioPlayer(
             async fileName => await JsRuntime.InvokeVoidAsync("playSound", $"/audio/{fileName}")
         );
@@ -50,7 +50,7 @@
 
     public void Dispose()
     {
-        Timer.OnTimerTick -= OnTimerTick;
+        Timer.OnTimerStateChanged -= OnTimerStateChanged;
         Timer.Dispose();
     }
 }

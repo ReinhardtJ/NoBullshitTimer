@@ -7,7 +7,7 @@ namespace NoBullshitTimer.Client.Application;
 
 public class WorkoutMapper
 {
-    public Workout ToDomain(WorkoutForm workoutForm)
+    public Workout? ToDomain(WorkoutForm workoutForm)
     {
         return new Workout(
             TimeFormat.ParseTime(workoutForm.PrepareTime, 10),
