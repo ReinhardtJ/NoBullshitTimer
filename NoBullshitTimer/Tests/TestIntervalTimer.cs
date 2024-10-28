@@ -1,3 +1,4 @@
+using NoBullshitTimer.Client.Application;
 using NoBullshitTimer.Client.Domain;
 using NoBullshitTimer.Tests.Domain;
 using NUnit.Framework;
@@ -11,8 +12,12 @@ public class TestIntervalTimer
     [SetUp]
     public void Setup()
     {
-        var workoutPlan = Fixtures.SomeWorkoutPlan();
-        _intervalTimer = new IntervalTimer(workoutPlan, () => {});
+        var workout = Fixtures.SomeWorkout();
+        var workoutState = new WorkoutState
+        {
+            Workout = workout
+        };
+        _intervalTimer = new IntervalTimer(workoutState);
     }
 
 
@@ -170,14 +175,18 @@ public class TestIntervalTimer
     [Test]
     public void TestTimerSecondsLeft()
     {
-        var intervalTimer = new IntervalTimer(new WorkoutPlan(
-            TimeSpan.FromSeconds(1),
-            TimeSpan.FromSeconds(3),
-            TimeSpan.FromSeconds(2),
-            TimeSpan.FromSeconds(1),
-            1,
-            new List<string> {"pull ups"}
-        ), () => {});
+        var state = new WorkoutState()
+        {
+            Workout = new Workout(
+                TimeSpan.FromSeconds(1),
+                TimeSpan.FromSeconds(3),
+                TimeSpan.FromSeconds(2),
+                TimeSpan.FromSeconds(1),
+                1,
+                new List<string> { "pull ups" }
+            )
+        };
+        var intervalTimer = new IntervalTimer(state);
         Assert.That(intervalTimer.CurrentInterval is Ready);
         intervalTimer.Tick();
         Assert.That(intervalTimer.CurrentInterval is Prepare);

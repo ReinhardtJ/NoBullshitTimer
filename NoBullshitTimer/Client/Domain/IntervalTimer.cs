@@ -1,45 +1,50 @@
+using NoBullshitTimer.Client.Application;
 using NoBullshitTimer.Client.Framework;
 
 namespace NoBullshitTimer.Client.Domain;
 
 public class IntervalTimer : IDisposable, IAsyncDisposable
 {
-    private readonly Action _onTickCallback;
+
     private Timer _timer;
     private LinkedListNode<Interval> CurrentIntervalNode { get; set; }
+
+    public event Action OnTimerTick = () => { };
 
     public int CurrentIntervalNr { get; private set; }
     public int SecondsLeft { get; private set; }
     public bool TimerPaused = true;
-    public WorkoutPlan WorkoutPlan { get; }
+    public Workout Workout { get; set; }
     private LinkedList<Interval> _intervals;
 
-    public IntervalTimer(
-        WorkoutPlan plan,
-        Action onTickCallback
-    )
+    public IntervalTimer(IWorkoutState workoutState)
     {
-        _onTickCallback = onTickCallback;
-        WorkoutPlan = plan;
+        workoutState.OnWorkoutChanged += InitIntervalTimer;
+        InitIntervalTimer(workoutState.Workout);
+    }
+
+    private void InitIntervalTimer(Workout workout)
+    {
+        Workout = workout;
         _intervals = new();
         _intervals.AddLast(new Ready());
-        _intervals.AddLast(new Prepare(plan.PrepareTime.TotalSecondsInt()));
-        foreach (var exercise in plan.Exercises)
+        _intervals.AddLast(new Prepare(workout.PrepareTime.TotalSecondsInt()));
+        foreach (var exercise in workout.Exercises)
         {
-            for (var i = 0; i < plan.SetsPerExercise; i++)
+            for (var i = 0; i < workout.SetsPerExercise; i++)
             {
-                _intervals.AddLast(new Work(plan.WorkTime.TotalSecondsInt(), exercise));
-                if (i == plan.SetsPerExercise - 1 && exercise == plan.Exercises[^1])
+                _intervals.AddLast(new Work(workout.ExerciseTime.TotalSecondsInt(), exercise));
+                if (i == workout.SetsPerExercise - 1 && exercise == workout.Exercises[^1])
                 {
                     break;
                 }
 
-                _intervals.AddLast(new Rest(plan.RestTime.TotalSecondsInt()));
+                _intervals.AddLast(new Rest(workout.RestTime.TotalSecondsInt()));
             }
         }
-        Console.WriteLine(plan.CooldownTime);
-        Console.WriteLine(plan.CooldownTime.TotalSecondsInt());
-        _intervals.AddLast(new Cooldown(plan.CooldownTime.TotalSecondsInt()));
+        Console.WriteLine(workout.CooldownTime);
+        Console.WriteLine(workout.CooldownTime.TotalSecondsInt());
+        _intervals.AddLast(new Cooldown(workout.CooldownTime.TotalSecondsInt()));
         _intervals.AddLast(new Done());
         CurrentIntervalNode = _intervals.First!;
         CurrentIntervalNr = 1;
@@ -48,7 +53,7 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
             if (TimerPaused)
                 return;
             Tick();
-            _onTickCallback();
+            OnTimerTick.Invoke();
         }, null, 0L, 1000L);
     }
 
@@ -76,7 +81,7 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
         SecondsLeft = CurrentIntervalNode.Value.IntervalLength;
         if (CurrentInterval is Ready)
             TimerPaused = true;
-        _onTickCallback();
+        OnTimerTick.Invoke();
     }
 
     public void GoToNextInterval()
@@ -93,7 +98,7 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
         CurrentIntervalNode = CurrentIntervalNode.Next;
         SecondsLeft = CurrentIntervalNode.Value.IntervalLength;
         CurrentIntervalNr += 1;
-        _onTickCallback();
+        OnTimerTick.Invoke();
     }
 
     public void TogglePlayPause()

@@ -4,9 +4,9 @@ namespace NoBullshitTimer.Tests.Domain;
 
 public static class Fixtures
 {
-    public static WorkoutPlan SomeWorkoutPlan()
+    public static Workout SomeWorkout()
     {
-        return new WorkoutPlan(
+        return new Workout(
             TimeSpan.FromSeconds(10),
             TimeSpan.FromSeconds(40),
             TimeSpan.FromSeconds(20),

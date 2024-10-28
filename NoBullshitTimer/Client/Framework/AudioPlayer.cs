@@ -30,20 +30,20 @@ public class AudioPlayer
                 break;
         }
 
-        if (timer.SecondsLeft == timer.WorkoutPlan.WorkTime.TotalSecondsInt() && timer.CurrentInterval is Work)
+        if (timer.SecondsLeft == timer.Workout.ExerciseTime.TotalSecondsInt() && timer.CurrentInterval is Work)
         {
             await _playAudioFile($"{VoicePack}/Go.mp3");
         }
-        if (timer.SecondsLeft == timer.WorkoutPlan.RestTime.TotalSecondsInt() && timer.CurrentInterval is Rest)
+        if (timer.SecondsLeft == timer.Workout.RestTime.TotalSecondsInt() && timer.CurrentInterval is Rest)
         {
             await _playAudioFile($"{VoicePack}/Rest.mp3");
         }
-        if (timer.SecondsLeft == timer.WorkoutPlan.PrepareTime.TotalSecondsInt() && timer.CurrentInterval is Prepare)
+        if (timer.SecondsLeft == timer.Workout.PrepareTime.TotalSecondsInt() && timer.CurrentInterval is Prepare)
         {
             await _playAudioFile($"{VoicePack}/GetReady.mp3");
         }
 
-        if (timer.SecondsLeft == timer.WorkoutPlan.CooldownTime.TotalSecondsInt() && timer.CurrentInterval is Cooldown)
+        if (timer.SecondsLeft == timer.Workout.CooldownTime.TotalSecondsInt() && timer.CurrentInterval is Cooldown)
         {
             await _playAudioFile($"{VoicePack}/Cooldown.mp3");
         }

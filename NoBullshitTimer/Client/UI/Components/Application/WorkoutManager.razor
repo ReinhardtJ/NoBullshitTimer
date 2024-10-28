@@ -1,0 +1,86 @@
+@using NoBullshitTimer.Client.Application
+@using NoBullshitTimer.Client.Components
+@using NoBullshitTimer.Client.Domain
+@using NoBullshitTimer.Client.UI.Components.Generic
+<div>
+    <h1 class="text-2xl pb-5">Manage Workouts</h1>
+    <div class="flex flex-row">
+        <Button @onclick="OpenSaveWorkoutModal">
+            Save Current Workout
+        </Button>
+        @if (SelectedWorkout == null)
+        {
+        <Button ButtonType="ButtonType.Disabled">
+            Load Workout
+        </Button>
+        }
+        else
+        {
+        <Button @onclick="LoadSelectedWorkoutPlan">
+            Load Workout
+        </Button>
+        }
+        <Dropdown
+            TValue="Workout"
+            Items="AllWorkoutPlans"
+            SelectedItemChanged="OnSelectedWorkoutPlanChanged"></Dropdown>
+    </div>
+
+</div>
+<Modal @bind-IsVisible="ShowSaveWorkoutModal" Title="Save Current Workout">
+    <div class="mb-6">Save the currently applied workout</div>
+    <div class="flex flex-col items-center">
+        <TextInput Classes="mb-6" Hint="Workout Name" @bind-InputData="_workoutToSaveName"></TextInput>
+        @if (_workoutToSaveName == "")
+        {
+        <Button ButtonType="ButtonType.Disabled">Save</Button>
+        }
+        else
+        {
+        <Button @onclick="SaveWorkoutPlan">Save</Button>
+        }
+    </div>
+</Modal>
+
+
+@inject IntervalTimer Timer
+@inject IWorkoutStore WorkoutStore
+@inject IWorkoutState WorkoutState
+
+@code {
+
+    private void SaveWorkoutPlan()
+    {
+        WorkoutStore.Add(WorkoutState.Workout, _workoutToSaveName);
+        SelectedWorkout = AllWorkoutPlans.Find(plan => plan.Label == _workoutToSaveName);
+        ShowSaveWorkoutModal = false;
+    }
+
+    private string _workoutToSaveName = "";
+    private DropdownItem<Workout> SelectedWorkout { get; set; }
+    private List<DropdownItem<Workout>> AllWorkoutPlans => WorkoutStore.GetAllWorkouts()
+        .Select((kv, i) => new DropdownItem<Workout>(kv.Key, kv.Value))
+        .ToList();
+
+
+    private void LoadSelectedWorkoutPlan()
+    {
+        if (SelectedWorkout == null)
+            return;
+
+        WorkoutState.Workout = SelectedWorkout.Value;
+    }
+
+    private bool ShowSaveWorkoutModal { get; set; }
+    private void OpenSaveWorkoutModal()
+    {
+        ShowSaveWorkoutModal = true;
+    }
+
+
+
+    private async Task OnSelectedWorkoutPlanChanged(DropdownItem<Workout> newSelectedWorkoutPlan)
+    {
+        SelectedWorkout = newSelectedWorkoutPlan;
+    }
+}

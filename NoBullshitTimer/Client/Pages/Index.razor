@@ -1,15 +1,9 @@
 ﻿@namespace NoBullshitTimer.Client.Pages
 
 @page "/"
-
-@using NoBullshitTimer.Client.Application
 @using NoBullshitTimer.Client.Domain
-@using NoBullshitTimer.Client.Components
 @using NoBullshitTimer.Client.Framework
-@using NoBullshitTimer.Client.UI
 @using NoBullshitTimer.Client.UI.Components.Application
-@using NoBullshitTimer.Client.UI.Components.Generic
-@using OneOf.Monads
 @implements IDisposable
 
 <PageTitle>Index</PageTitle>
@@ -24,133 +18,9 @@
         ></VoicePackSelect>
     </div>
     <div class="max-w-screen-sm mx-auto">
-        <div class="flex flex-col items-center">
-            <div class="pb-20">
-                <div class="text-5xl text-center pb-4">
-                    @_intervalTimer?.CurrentInterval.Name
-                </div>
-                @if (_intervalTimer?.NextInterval != null)
-                {
-                    <div class="text-2xl text-center">
-                        Next: @_intervalTimer.NextInterval.Name
-                    </div>
-                }
-            </div>
-
-            <div class="pb-20">
-                <div class="text-8xl text-center">@SecondsLeftFormatted()</div>
-                @if (_intervalTimer?.CurrentInterval is Work or Rest)
-                {
-                    <div class="text-center">Exercise: @ExerciseProgress</div>
-                    <div class="text-center">Set: @SetProgress</div>
-                }
-            </div>
-
-            <div class="pb-20">
-                <div class="text-center pb-5">@PauseInformation</div>
-                <div class="flex flex-row gap-5">
-                    <Button @onclick="_ => _intervalTimer?.GoToPreviousInterval()"> Previous Interval</Button>
-                    <Button @onclick="_ => _intervalTimer?.TogglePlayPause()">Play / Pause</Button>
-                    <Button @onclick="_ => _intervalTimer?.GoToNextInterval()"> Next Interval </Button>
-                </div>
-            </div>
-        </div>
-        <div class="pb-16">
-            <h1 class="text-2xl pb-5">Edit</h1>
-            <div class="flex justify-center">
-                <div class="inline-grid grid-cols-[auto_auto_auto] gap-4">
-                    <span class="flex items-center text-lg">Prepare Time</span>
-                    <TextInput Classes="text-right" @bind-InputData="_prepareTimeInputRaw"/>
-                    <span class="inline-flex items-center text-gray-500">(@PrepareTimeInput)</span>
-
-                    <span class="flex items-center text-lg">Work Time</span>
-                    <TextInput Classes="text-right" @bind-InputData="_workTimeInputRaw"/>
-                    <span class="inline-flex items-center text-gray-500">(@WorkTimeInput)</span>
-
-                    <span class="flex items-center text-lg">Rest Time</span>
-                    <TextInput Classes="text-right" @bind-InputData="_restTimeInputRaw"/>
-                    <span class="inline-flex items-center text-gray-500">(@RestTimeInput)</span>
-
-                    <span class="flex items-center text-lg">Cooldown Time</span>
-                    <TextInput Classes="text-right" @bind-InputData="_cooldownTimeInputRaw"/>
-                    <span class="inline-flex items-center text-gray-500">(@CooldownTimeInput)</span>
-
-                    <span class="flex items-center text-lg">Intervals</span>
-                    <TextInput Classes="text-right" @bind-InputData="_nrOfIntervalsInputRaw"/>
-                    <span></span>
-
-                    <span class="flex items-center text-lg">Total Time</span>
-                    <span class="inline-flex items-center text-right">@TotalInputTime</span>
-                    <span></span>
-                </div>
-            </div>
-            <div class="grid grid-cols-[auto_1fr_minmax(100px,auto)] gap-4 pt-16">
-                @foreach (var exerciseInput in _exerciseInputsRaw)
-                {
-                    <div class="col-span-1">
-                        <Button @onclick="_ => AddExercise(exerciseInput)">Add Exercise</Button>
-                    </div>
-                    <div class="col-span-1 self-center">
-                        <TextInput @bind-InputData="exerciseInput.Name"></TextInput>
-                    </div>
-                    <div class="col-span-1">
-                        @if (_exerciseInputsRaw.Count > 1)
-                        {
-                            <Button @onclick="_ => DeleteExercise(exerciseInput)">Delete Exercise</Button>
-                        }
-                        else
-                        {
-                            <Button ButtonType="ButtonType.Disabled">Delete Exercise</Button>
-                        }
-                    </div>
-                }
-            </div>
-            <div class="flex flex-col justify-center items-center pt-16">
-                <Button Classes="px-10" @onclick="ApplyCurrentInput">
-                    Apply
-                </Button>
-            </div>
-        </div>
-        <div>
-            <h1 class="text-2xl pb-5">Manage Workouts</h1>
-            <div class="flex flex-row">
-                <Button @onclick="OpenSaveWorkoutModal">
-                    Save Current Workout
-                </Button>
-                @if (SelectedWorkoutPlan == null)
-                {
-                    <Button ButtonType="ButtonType.Disabled">
-                        Load Workout
-                    </Button>
-                }
-                else
-                {
-                    <Button @onclick="LoadSelectedWorkoutPlan">
-                        Load Workout
-                    </Button>
-                }
-                <Dropdown
-                    TValue="WorkoutPlan"
-                    Items="AllWorkoutPlans"
-                    SelectedItemChanged="OnSelectedWorkoutPlanChanged"></Dropdown>
-            </div>
-
-        </div>
-        <Modal @bind-IsVisible="ShowSaveWorkoutModal" Title="Save Current Workout">
-            <div class="mb-6">Save the currently applied workout</div>
-            <div class="flex flex-col items-center">
-                <TextInput Classes="mb-6" Hint="Workout Name" @bind-InputData="_workoutToSaveName"></TextInput>
-                @if (_workoutToSaveName == "")
-                {
-                    <Button ButtonType="ButtonType.Disabled">Save</Button>
-                }
-                else
-                {
-                    <Button @onclick="SaveWorkoutPlan">Save</Button>
-                }
-            </div>
-        </Modal>
-
+        <TimerInfo />
+        <WorkoutEditor />
+        <WorkoutManager />
         <p>
             *please note that this is an early version of this software, so certain things might <i>not</i> work perfectly. However, the core functionality is given and thoroughly tested
         </p>
@@ -158,204 +28,29 @@
 </div>
 
 @inject IJSRuntime JsRuntime
-@inject IWorkoutPlanStore WorkoutPlanStore
+
+@inject IntervalTimer Timer
 
 @code {
-
-    private IntervalTimer? _intervalTimer;
-    private AudioPlayer? _audioPlayer;
-    private WorkoutPlan? _workoutPlan;
-
-    protected override async Task OnInitializedAsync()
-    {
-        _audioPlayer = new AudioPlayer(
-            async fileName => await JsRuntime.InvokeVoidAsync("playSound", $"/audio/{fileName}")
-        );
-        ApplyCurrentInput();
-    }
-
-
-
-    private void ApplyCurrentInput()
-    {
-        _intervalTimer?.Dispose();
-        SetWorkoutPlanToInput();
-        if (!ValidateInput())
-        {
-            return;
-        }
-        _intervalTimer = new IntervalTimer(_workoutPlan, OnTimerTick);
-    }
-
-    private void SetWorkoutPlanToInput()
-    {
-        _workoutPlan = new WorkoutPlan(
-            PrepareTimeInput,
-            WorkTimeInput,
-            RestTimeInput,
-            CooldownTimeInput,
-            NrOfIntervalsInput,
-            ExerciseInputs
-        );
-    }
-
-    private void SetInputToWorkoutPlan(WorkoutPlan workoutPlan)
-    {
-        _prepareTimeInputRaw = TimeFormat.UnparseTime(workoutPlan.PrepareTime);
-        _workTimeInputRaw = TimeFormat.UnparseTime(workoutPlan.WorkTime);
-        _restTimeInputRaw = TimeFormat.UnparseTime(workoutPlan.RestTime);
-        _cooldownTimeInputRaw = TimeFormat.UnparseTime(workoutPlan.CooldownTime);
-        _nrOfIntervalsInputRaw = workoutPlan.SetsPerExercise.ToString();
-        _exerciseInputsRaw = workoutPlan.Exercises.Select(exercise => new ExerciseInput(exercise)).ToList();
-    }
-
-
+    AudioPlayer _audioPlayer;
     private void OnTimerTick()
     {
-        _audioPlayer?.PlaySoundIfNecessary(_intervalTimer);
+        _audioPlayer?.PlaySoundIfNecessary(Timer);
+        Console.WriteLine("OnTimerTick in Index.razor");
         InvokeAsync(StateHasChanged);
     }
 
-    private bool ValidateInput()
+    protected override async Task OnInitializedAsync()
     {
-        return true;
-    }
-
-    private string SecondsLeftFormatted()
-    {
-        if (_intervalTimer == null) return "";
-        return TimeSpan.FromSeconds(_intervalTimer.SecondsLeft).ToString("mm\\:ss");
-    }
-
-    private string SetProgress
-    {
-        get
-        {
-            if (_intervalTimer == null) return "";
-            var intervalsPerExercise = _intervalTimer.WorkoutPlan.SetsPerExercise * 2;
-            var intervalInExercise = (_intervalTimer.CurrentIntervalNr - 2) % intervalsPerExercise;
-            intervalInExercise = intervalInExercise == 0 ? intervalsPerExercise : intervalInExercise;
-            intervalInExercise = (intervalInExercise + 1) / 2;
-            return $"{(intervalInExercise)} / {_intervalTimer.WorkoutPlan.SetsPerExercise}";
-        }
-    }
-
-    private string ExerciseProgress
-    {
-        get
-        {
-            if (_intervalTimer == null) return "";
-            var intervalsPerExercise = _intervalTimer.WorkoutPlan.SetsPerExercise * 2;
-            var intervalInWorkout = (_intervalTimer.CurrentIntervalNr - 2);
-            var exercisesPerWorkout = _intervalTimer.WorkoutPlan.Exercises.Count;
-            var exerciseInWorkout = (intervalInWorkout + intervalsPerExercise - 1) / intervalsPerExercise;
-            return $"{exerciseInWorkout} / {exercisesPerWorkout}";
-        }
-    }
-
-
-    private string PauseInformation
-    {
-        get
-        {
-            if (_intervalTimer == null) return "";
-            return _intervalTimer.TimerPaused ? "Timer Paused" : "Timer Running";
-        }
-    }
-
-
-    private TimeSpan PrepareTimeInput => TimeFormat.ParseTime(_prepareTimeInputRaw, 10);
-    private TimeSpan WorkTimeInput => TimeFormat.ParseTime(_workTimeInputRaw, 40);
-    private TimeSpan RestTimeInput => TimeFormat.ParseTime(_restTimeInputRaw, 20);
-    private TimeSpan CooldownTimeInput => TimeFormat.ParseTime(_cooldownTimeInputRaw, 60);
-
-    private int NrOfIntervalsInput
-    {
-        get
-        {
-            if (int.TryParse(_nrOfIntervalsInputRaw, out var nrOfIntervals))
-                return nrOfIntervals;
-            return 3;
-        }
-    }
-
-    private string
-        _prepareTimeInputRaw = "00:10",
-        _workTimeInputRaw = "00:40",
-        _restTimeInputRaw = "00:20",
-        _cooldownTimeInputRaw = "01:00",
-        _nrOfIntervalsInputRaw = "3";
-
-    private string TotalInputTime => (
-        PrepareTimeInput + ExerciseInputs.Count * NrOfIntervalsInput * (WorkTimeInput + RestTimeInput) + CooldownTimeInput
-    ).ToString();
-
-
-
-    private List<ExerciseInput> _exerciseInputsRaw = new()
-    {
-        new ExerciseInput ("Exercise 1")
-    };
-
-    private List<string> ExerciseInputs => _exerciseInputsRaw
-        .Select(exerciseInput => exerciseInput.Name)
-        .ToList();
-
-    private void DeleteExercise(ExerciseInput exerciseInput)
-    {
-        _exerciseInputsRaw.Remove(exerciseInput);
-        Console.WriteLine(_exerciseInputsRaw);
-    }
-
-    private void AddExercise(ExerciseInput exerciseInput)
-    {
-        var insertIndex = _exerciseInputsRaw.IndexOf(exerciseInput) + 1;
-        _exerciseInputsRaw.Insert(insertIndex, new ExerciseInput ($"Exercise {insertIndex + 1}"));
-        Console.WriteLine(_exerciseInputsRaw);
-    }
-
-
-
-    private string _workoutToSaveName = "";
-    private string? _lastSavedOrLoadedWorkoutName = null;
-    private DropdownItem<WorkoutPlan> SelectedWorkoutPlan { get; set; }
-    private List<DropdownItem<WorkoutPlan>> AllWorkoutPlans => WorkoutPlanStore.GetAllWorkoutPlans()
-        .Select((kv, i) => new DropdownItem<WorkoutPlan>(kv.Key, kv.Value))
-        .ToList();
-
-
-    private void LoadSelectedWorkoutPlan()
-    {
-        if (SelectedWorkoutPlan == null)
-            return;
-
-        SetInputToWorkoutPlan(SelectedWorkoutPlan.Value);
-        ApplyCurrentInput();
-    }
-
-    private bool ShowSaveWorkoutModal { get; set; }
-    private void OpenSaveWorkoutModal()
-    {
-        ShowSaveWorkoutModal = true;
-    }
-
-
-    private void SaveWorkoutPlan()
-    {
-        WorkoutPlanStore.Add(_workoutPlan, _workoutToSaveName);
-        _lastSavedOrLoadedWorkoutName = _workoutToSaveName;
-        SelectedWorkoutPlan = AllWorkoutPlans.Find(plan => plan.Label == _workoutToSaveName);
-        ShowSaveWorkoutModal = false;
-    }
-
-    private async Task OnSelectedWorkoutPlanChanged(DropdownItem<WorkoutPlan> newSelectedWorkoutPlan)
-    {
-        SelectedWorkoutPlan = newSelectedWorkoutPlan;
+        Timer.OnTimerTick += OnTimerTick;
+        _audioPlayer = new AudioPlayer(
+            async fileName => await JsRuntime.InvokeVoidAsync("playSound", $"/audio/{fileName}")
+        );
     }
 
     public void Dispose()
     {
-        _intervalTimer?.Dispose();
+        Timer.OnTimerTick -= OnTimerTick;
+        Timer.Dispose();
     }
-
 }

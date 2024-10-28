@@ -1,0 +1,114 @@
+@using NoBullshitTimer.Client.Application
+@using NoBullshitTimer.Client.Domain
+@using NoBullshitTimer.Client.Framework
+@using NoBullshitTimer.Client.Components
+@using NoBullshitTimer.Client.UI.Components.Generic
+<div class="pb-16">
+    <h1 class="text-2xl pb-5">Edit</h1>
+    <div class="flex justify-center">
+        <div class="inline-grid grid-cols-[auto_auto_auto] gap-4">
+            <span class="flex items-center text-lg">Prepare Time</span>
+            <TextInput Classes="text-right" @bind-InputData="_workoutForm.PrepareTime"/>
+            <span class="inline-flex items-center text-gray-500">(@EditableWorkout.PrepareTime)</span>
+
+            <span class="flex items-center text-lg">Work Time</span>
+            <TextInput Classes="text-right" @bind-InputData="_workoutForm.ExerciseTime"/>
+            <span class="inline-flex items-center text-gray-500">(@EditableWorkout.ExerciseTime)</span>
+
+            <span class="flex items-center text-lg">Rest Time</span>
+            <TextInput Classes="text-right" @bind-InputData="_workoutForm.RestTime"/>
+            <span class="inline-flex items-center text-gray-500">(@EditableWorkout.RestTime)</span>
+
+            <span class="flex items-center text-lg">Cooldown Time</span>
+            <TextInput Classes="text-right" @bind-InputData="_workoutForm.CooldownTime"/>
+            <span class="inline-flex items-center text-gray-500">(@EditableWorkout.CooldownTime)</span>
+
+            <span class="flex items-center text-lg">Intervals</span>
+            <TextInput Classes="text-right" @bind-InputData="_workoutForm.SetsPerExercise"/>
+            <span></span>
+
+            <span class="flex items-center text-lg">Total Time</span>
+            <span class="inline-flex items-center text-right">@TotalInputTime</span>
+            <span></span>
+        </div>
+    </div>
+    <div class="grid grid-cols-[auto_1fr_auto_auto_minmax(100px,auto)] gap-4 pt-16">
+        @foreach (var exerciseInput in _workoutForm.Exercises)
+        {
+        <div class="col-span-1">
+            <Button @onclick="_ => AddExercise(exerciseInput)">
+                <Icon Type="IconType.Add" />
+            </Button>
+        </div>
+        <div class="col-span-1 self-center">
+            <TextInput @bind-InputData="exerciseInput.Name"></TextInput>
+        </div>
+        <div class="col-span-1">
+            <Button >
+                <Icon Type="IconType.Up" />
+            </Button>
+        </div>
+        <div class="col-span-1">
+            <Button >
+                <Icon Type="IconType.Down" />
+            </Button>
+        </div>
+        <div class="col-span-1">
+            @if (_workoutForm.Exercises.Count > 1)
+            {
+            <Button @onclick="_ => DeleteExercise(exerciseInput)">
+                <Icon Type="IconType.Close" />
+            </Button>
+            }
+            else
+            {
+            <Button ButtonType="ButtonType.Disabled">
+                <Icon Type="IconType.Close" />
+            </Button>
+            }
+        </div>
+        }
+    </div>
+</div>
+
+@inject IntervalTimer Timer
+@inject IWorkoutState WorkoutState
+@inject WorkoutMapper WorkoutMapper
+
+@code {
+    private WorkoutForm _workoutForm = WorkoutForm.GetDefaultWorkoutForm();
+    private Workout EditableWorkout => WorkoutMapper.ToDomain(_workoutForm);
+
+    private void DeleteExercise(ExerciseInput exerciseInput)
+    {
+        _workoutForm.Exercises.Remove(exerciseInput);
+        ApplyCurrentInput();
+    }
+
+    private void AddExercise(ExerciseInput exerciseInput)
+    {
+        var insertIndex = _workoutForm.Exercises.IndexOf(exerciseInput) + 1;
+        _workoutForm.Exercises.Insert(insertIndex, new ExerciseInput ($"Exercise {insertIndex + 1}"));
+        ApplyCurrentInput();
+    }
+
+
+    private string TotalInputTime => (
+        EditableWorkout.PrepareTime
+        + EditableWorkout.Exercises.Count
+        * EditableWorkout.SetsPerExercise
+        * (EditableWorkout.ExerciseTime + EditableWorkout.RestTime)
+        + EditableWorkout.CooldownTime
+    ).ToString();
+
+
+    public void ApplyCurrentInput()
+    {
+        WorkoutState.Workout = EditableWorkout;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ApplyCurrentInput();
+    }
+}

@@ -33,50 +33,42 @@ public class Ready : Interval
 
 public class Prepare : Interval
 {
-    private readonly int _prepareTime;
-
     public Prepare(int prepareTime) : base("Prepare")
     {
-        _prepareTime = prepareTime;
+        IntervalLength = prepareTime;
     }
 
-    public override int IntervalLength => _prepareTime;
+    public override int IntervalLength { get; }
 }
 
 public class Work : Interval
 {
-    private readonly int _workTime;
-
     public Work(int workTime, string name) : base(name)
     {
-        _workTime = workTime;
+        IntervalLength = workTime;
     }
 
-    public override int IntervalLength => _workTime;
+    public override int IntervalLength { get; }
 }
 
 public class Rest : Interval
 {
-    private readonly int _restTime;
-
     public Rest(int restTime) : base("Rest")
     {
-        _restTime = restTime;
+        IntervalLength = restTime;
     }
 
-    public override int IntervalLength => _restTime;
+    public override int IntervalLength { get; }
 }
 
 public class Cooldown : Interval
 {
-    private readonly int _cooldownTime;
-
     public Cooldown(int cooldownTime) : base("Cooldown")
     {
-        _cooldownTime = cooldownTime;
+        IntervalLength = cooldownTime;
     }
 
-    public override int IntervalLength => _cooldownTime;
+    public override int IntervalLength { get; }
 }
 
 public class Done : Interval
