@@ -1,3 +1,4 @@
+using NoBullshitTimer.Client.Application;
 using NoBullshitTimer.Client.Domain;
 
 namespace NoBullshitTimer.Client.Framework;
@@ -12,7 +13,7 @@ public class AudioPlayer
         _playAudioFile = playAudioFile;
     }
 
-    public async void PlaySoundIfNecessary(IntervalTimer? timer)
+    public async void PlaySoundIfNecessary(IntervalTimer? timer, IWorkoutState state)
     {
         if (timer is null)
             return;
@@ -30,16 +31,17 @@ public class AudioPlayer
                 break;
         }
 
-        if (timer.SecondsLeft == timer.Workout.ExerciseTime.TotalSecondsInt() && timer.CurrentInterval is Work)
+        var workout = state.Workout;
+        if (timer.SecondsLeft == workout.ExerciseTime.TotalSecondsInt() && timer.CurrentInterval is Work)
             await _playAudioFile($"{VoicePack}/Go.mp3");
 
-        if (timer.SecondsLeft == timer.Workout.RestTime.TotalSecondsInt() && timer.CurrentInterval is Rest)
+        if (timer.SecondsLeft == workout.RestTime.TotalSecondsInt() && timer.CurrentInterval is Rest)
             await _playAudioFile($"{VoicePack}/Rest.mp3");
 
-        if (timer.SecondsLeft == timer.Workout.PrepareTime.TotalSecondsInt() && timer.CurrentInterval is Prepare)
+        if (timer.SecondsLeft == workout.PrepareTime.TotalSecondsInt() && timer.CurrentInterval is Prepare)
             await _playAudioFile($"{VoicePack}/GetReady.mp3");
 
-        if (timer.SecondsLeft == timer.Workout.CooldownTime.TotalSecondsInt() && timer.CurrentInterval is Cooldown)
+        if (timer.SecondsLeft == workout.CooldownTime.TotalSecondsInt() && timer.CurrentInterval is Cooldown)
             await _playAudioFile($"{VoicePack}/Cooldown.mp3");
 
         if (timer.CurrentInterval is Done)

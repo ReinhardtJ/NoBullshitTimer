@@ -183,7 +183,8 @@ public class TestIntervalTimer
                 TimeSpan.FromSeconds(2),
                 TimeSpan.FromSeconds(1),
                 1,
-                new List<string> { "pull ups" }
+                new List<string> { "pull ups" },
+                false
             )
         };
         var intervalTimer = new IntervalTimer(state);
@@ -194,6 +195,30 @@ public class TestIntervalTimer
         intervalTimer.Tick();
         Assert.That(intervalTimer.CurrentInterval is Work);
         Assert.That(intervalTimer.SecondsLeft, Is.EqualTo(3));
+    }
+
+    [Test]
+    public void TestCircularSets()
+    {
+        var workout = Fixtures.SomeWorkout();
+        workout.CircularSets = true;
+        var state = new WorkoutState() { Workout = workout };
+        var intervalTimer = new IntervalTimer(state); // ready
+        intervalTimer.GoToNextInterval(); // prepare
+        intervalTimer.GoToNextInterval(); // ex 1 set 1
+        Assert.That(intervalTimer.CurrentInterval.Name, Is.EqualTo("push ups"));
+        intervalTimer.GoToNextInterval(); // rest
+        intervalTimer.GoToNextInterval(); // ex 2 set 1
+        Assert.That(intervalTimer.CurrentInterval.Name, Is.EqualTo("pull ups"));
+        intervalTimer.GoToNextInterval(); // rest
+        intervalTimer.GoToNextInterval(); // ex 1 set 2
+        Assert.That(intervalTimer.CurrentInterval.Name, Is.EqualTo("push ups"));
+        intervalTimer.GoToNextInterval(); // rest
+        intervalTimer.GoToNextInterval(); // ex 2 set 2
+        Assert.That(intervalTimer.CurrentInterval.Name, Is.EqualTo("pull ups"));
+        intervalTimer.GoToNextInterval(); // cooldown
+        Assert.That(intervalTimer.CurrentInterval is Cooldown);
+
     }
 
     private void Tick(IntervalTimer timer, int times)

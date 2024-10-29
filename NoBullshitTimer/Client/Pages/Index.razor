@@ -1,6 +1,7 @@
 ﻿@namespace NoBullshitTimer.Client.Pages
 
 @page "/"
+@using NoBullshitTimer.Client.Application
 @using NoBullshitTimer.Client.Domain
 @using NoBullshitTimer.Client.Framework
 @using NoBullshitTimer.Client.UI.Components.Application
@@ -28,14 +29,14 @@
 </div>
 
 @inject IJSRuntime JsRuntime
-
 @inject IntervalTimer Timer
+@inject IWorkoutState WorkoutState
 
 @code {
     AudioPlayer _audioPlayer;
     private void OnTimerStateChanged()
     {
-        _audioPlayer?.PlaySoundIfNecessary(Timer);
+        _audioPlayer?.PlaySoundIfNecessary(Timer, WorkoutState);
         Console.WriteLine("OnTimerTick in Index.razor");
         InvokeAsync(StateHasChanged);
     }

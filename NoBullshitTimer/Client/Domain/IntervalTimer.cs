@@ -5,7 +5,6 @@ namespace NoBullshitTimer.Client.Domain;
 
 public class IntervalTimer : IDisposable, IAsyncDisposable
 {
-
     private Timer? _timer;
     private LinkedListNode<Interval>? CurrentIntervalNode { get; set; }
 
@@ -14,7 +13,6 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
     public int CurrentIntervalNr { get; private set; }
     public int SecondsLeft { get; private set; }
     public bool TimerPaused = true;
-    public Workout? Workout { get; set; }
     private LinkedList<Interval> _intervals = new();
 
     public IntervalTimer(IWorkoutState workoutState)
@@ -23,23 +21,16 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
         InitIntervalTimer(workoutState.Workout);
     }
 
-    private void InitIntervalTimer(Workout? workout)
+    private void InitIntervalTimer(Workout workout)
     {
-        Workout = workout;
         _intervals = new();
         _intervals.AddLast(new Ready());
         _intervals.AddLast(new Prepare(workout.PrepareTime.TotalSecondsInt()));
-        foreach (var exercise in workout.Exercises)
-        {
-            for (var i = 0; i < workout.SetsPerExercise; i++)
-            {
-                _intervals.AddLast(new Work(workout.ExerciseTime.TotalSecondsInt(), exercise));
-                if (i == workout.SetsPerExercise - 1 && exercise == workout.Exercises[^1])
-                    break;
+        if (workout.CircularSets)
+            InitIntervalsCircular(workout);
+        else
+            InitIntervalsStraight(workout);
 
-                _intervals.AddLast(new Rest(workout.RestTime.TotalSecondsInt()));
-            }
-        }
         Console.WriteLine(workout.CooldownTime);
         Console.WriteLine(workout.CooldownTime.TotalSecondsInt());
         _intervals.AddLast(new Cooldown(workout.CooldownTime.TotalSecondsInt()));
@@ -50,7 +41,7 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
 
         if (_timer != null)
             _timer.Dispose();
-        
+
         _timer = new Timer(_ =>
         {
             if (TimerPaused)
@@ -59,6 +50,36 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
             OnTimerStateChanged.Invoke();
         }, null, 0L, 1000L);
         OnTimerStateChanged.Invoke();
+    }
+
+    private void InitIntervalsStraight(Workout workout)
+    {
+        foreach (var exercise in workout.Exercises)
+        {
+            for (var i = 1; i <= workout.SetsPerExercise; i++)
+            {
+                _intervals.AddLast(new Work(workout.ExerciseTime.TotalSecondsInt(), exercise));
+                if (workout.IsLastSet(i) && workout.IsLastExercise(exercise))
+                    break;
+
+                _intervals.AddLast(new Rest(workout.RestTime.TotalSecondsInt()));
+            }
+        }
+    }
+
+    private void InitIntervalsCircular(Workout workout)
+    {
+        for (var i = 1; i <= workout.SetsPerExercise; i++)
+        {
+            foreach (var exercise in workout.Exercises)
+            {
+                _intervals.AddLast(new Work(workout.ExerciseTime.TotalSecondsInt(), exercise));
+                if (workout.IsLastSet(i) && workout.IsLastExercise(exercise))
+                    break;
+
+                _intervals.AddLast(new Rest(workout.RestTime.TotalSecondsInt()));
+            }
+        }
     }
 
     public Interval? CurrentInterval => CurrentIntervalNode?.Value;

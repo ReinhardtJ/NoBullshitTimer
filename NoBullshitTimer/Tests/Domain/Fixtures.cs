@@ -4,7 +4,7 @@ namespace NoBullshitTimer.Tests.Domain;
 
 public static class Fixtures
 {
-    public static Workout? SomeWorkout()
+    public static Workout SomeWorkout()
     {
         return new Workout(
             TimeSpan.FromSeconds(10),
@@ -12,7 +12,8 @@ public static class Fixtures
             TimeSpan.FromSeconds(20),
             TimeSpan.FromSeconds(60),
             2,
-            new List<string> {"push ups", "pull ups"}
+            new List<string> {"push ups", "pull ups"},
+            false
         );
     }
 }

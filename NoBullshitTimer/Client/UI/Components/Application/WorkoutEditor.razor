@@ -6,6 +6,11 @@
     <h1 class="text-2xl pb-5">Edit</h1>
     <div class="flex justify-center">
         <div class="inline-grid grid-cols-[auto_auto_auto] gap-4">
+
+            <span class="flex items-center text-lg">Circular Sets</span>
+            <input type="checkbox" @bind="_workoutForm.CircularSets" class="w-5 h-5 self-center"/>
+            <span></span>
+
             <span class="flex items-center text-lg">Prepare Time</span>
             <TextInput Classes="text-right" @bind-InputData="_workoutForm.PrepareTime"/>
             <span class="inline-flex items-center text-gray-500">(@EditableWorkout.PrepareTime)</span>
@@ -43,12 +48,18 @@
                 <TextInput @bind-InputData="exerciseInput.Name"></TextInput>
             </div>
             <div class="col-span-1">
-                <Button >
+                <Button
+                    @onclick="_ => _workoutForm.MoveExerciseUp(exerciseInput)"
+                    ButtonType="_workoutForm.IsFirstExercise(exerciseInput) ? ButtonType.Disabled : ButtonType.Primary"
+                >
                     <Icon Type="IconType.Up" />
                 </Button>
             </div>
             <div class="col-span-1">
-                <Button >
+                <Button
+                    @onclick="_ => _workoutForm.MoveExerciseDown(exerciseInput)"
+                    ButtonType="_workoutForm.IsLastExercise(exerciseInput) ? ButtonType.Disabled : ButtonType.Primary"
+                >
                     <Icon Type="IconType.Down" />
                 </Button>
             </div>

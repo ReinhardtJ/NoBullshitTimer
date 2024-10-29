@@ -15,7 +15,8 @@ public class WorkoutMapper
             TimeFormat.ParseTime(workoutForm.RestTime, 20),
             TimeFormat.ParseTime(workoutForm.CooldownTime, 60),
             Utils.ParseInt(workoutForm.SetsPerExercise, 3),
-            workoutForm.Exercises.Select(exerciseInput => exerciseInput.Name).ToList()
+            workoutForm.Exercises.Select(exerciseInput => exerciseInput.Name).ToList(),
+            workoutForm.CircularSets
         );
     }
 
@@ -27,7 +28,8 @@ public class WorkoutMapper
             TimeFormat.UnparseTime(workout.RestTime),
             TimeFormat.UnparseTime(workout.CooldownTime),
             workout.SetsPerExercise.ToString(),
-            workout.Exercises.Select(exercise => new ExerciseInput(exercise)).ToList()
+            workout.Exercises.Select(exercise => new ExerciseInput(exercise)).ToList(),
+            workout.CircularSets
         );
     }
 }

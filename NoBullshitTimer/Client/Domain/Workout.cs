@@ -8,6 +8,7 @@ public class Workout
     public TimeSpan CooldownTime;
     public int SetsPerExercise;
     public List<string> Exercises;
+    public bool CircularSets;
 
     public Workout(
         TimeSpan prepareTime,
@@ -15,7 +16,8 @@ public class Workout
         TimeSpan restTime,
         TimeSpan cooldownTime,
         int setsPerExercise,
-        List<string> exercises
+        List<string> exercises,
+        bool circularSets
     )
     {
         PrepareTime = prepareTime;
@@ -24,9 +26,20 @@ public class Workout
         CooldownTime = cooldownTime;
         SetsPerExercise = setsPerExercise;
         Exercises = exercises;
+        CircularSets = circularSets;
     }
 
-    public static Workout? GetDefaultWorkout()
+    public bool IsLastExercise(string exercise)
+    {
+        return exercise == Exercises[^1];
+    }
+
+    public bool IsLastSet(int set)
+    {
+        return set == SetsPerExercise;
+    }
+
+    public static Workout GetDefaultWorkout()
     {
         return new Workout(
             TimeSpan.FromSeconds(10),
@@ -34,7 +47,8 @@ public class Workout
             TimeSpan.FromSeconds(20),
             TimeSpan.FromSeconds(60),
             3,
-            new () { "Exercise 1" }
+            new () { "Exercise 1" },
+            false
         );
     }
 }
