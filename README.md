@@ -62,11 +62,26 @@ npx tailwindcss -i ./Styles/app.css -o ./wwwroot/css/app.css --minify
 To run the timer in docker, refer to the https://github.com/ReinhardtJ/reinhardt.ai
 repository.
 
-## Planned Features
-- [ ] Add support for circular sets
+## Features Done
+- [x] Base Timer functionality
+- [x] Edit workout in terms of
+  - warmup time
+  - exercise time
+  - rest time
+  - cooldown time
+  - exercises
+  - amount of sets per exercise
+- [x] Add support for circular sets
+- [x] Save and load workouts (in memory)
+- [x] Support for additional voice packs
+
+## Features ToDo
+- [ ] Optional Warmup
+- [ ] Optional Cooldown
+- [ ] Customize the name of the "Rest" interval
 - [ ] Add a "full control" mode to explicitly define every single interval 
 - [ ] Switch between voice commands and boxing-gym-timer-style "beep" noises
-- [ ] Save and load workout plans (to local storage)
-- [ ] Save and load workaut plans (between devices)
-- [ ] Add presets to quickly create timers (tabata, boxing, pomodoro etc.)
-- [ ] Add custom voice packs
+- [ ] Save and load workouts (to local storage)
+- [ ] Save and load workauts (between devices)
+- [ ] Delete saved workouts
+- [ ] Add common presets to quickly create workouts (tabata, boxing, pomodoro etc.)

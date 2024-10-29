@@ -38,16 +38,46 @@ public class Workout
     {
         return set == SetsPerExercise;
     }
+}
 
-    public static Workout GetDefaultWorkout()
+public static class WorkoutPresets
+{
+    public static Workout HIITPreset()
     {
         return new Workout(
-            TimeSpan.FromSeconds(10),
+            TimeSpan.FromMinutes(1),
             TimeSpan.FromSeconds(40),
             TimeSpan.FromSeconds(20),
-            TimeSpan.FromSeconds(60),
+            TimeSpan.FromMinutes(1),
             3,
             new () { "Exercise 1" },
+            false
+        );
+
+    }
+
+    public static Workout TabataPreset()
+    {
+        return new Workout(
+            TimeSpan.FromMinutes(1),
+            TimeSpan.FromSeconds(20),
+            TimeSpan.FromSeconds(10),
+            TimeSpan.FromMinutes(1),
+            8,
+            new () { "Work" },
+            false
+        );
+    }
+
+    public static Workout BoxingPreset()
+    {
+        return new Workout(
+            TimeSpan.FromMinutes(1),
+            TimeSpan.FromMinutes(3),
+            TimeSpan.FromMinutes(1),
+            TimeSpan.FromMinutes(1),
+            12,
+            new () { "Round" },
             false
         );
     }

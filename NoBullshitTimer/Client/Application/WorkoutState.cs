@@ -7,9 +7,18 @@ public class WorkoutState : IWorkoutState
     private Workout _workout;
     public event Action<Workout> OnWorkoutChanged = _ => { };
 
-    public WorkoutState()
+
+
+    public WorkoutState(IWorkoutRepository workoutRepository)
     {
-        _workout = Workout.GetDefaultWorkout();
+        try
+        {
+            Workout = workoutRepository.GetAllWorkouts().First().Value;
+        }
+        catch (InvalidOperationException)
+        {
+            Workout = WorkoutPresets.HIITPreset();
+        }
     }
 
     public Workout Workout

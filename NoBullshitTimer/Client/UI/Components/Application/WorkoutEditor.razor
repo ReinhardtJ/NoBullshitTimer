@@ -82,7 +82,7 @@
     <div class="flex flex-row justify-center">
         <Button
             ButtonType="_workoutForm.Dirty ? ButtonType.Primary : ButtonType.Disabled"
-            @onclick="ApplyCurrentInput"
+            @onclick="ApplyFormToCurrentWorkout"
         >
             Apply Changes
         </Button>
@@ -95,7 +95,7 @@
 
 @code {
     private WorkoutForm _workoutForm = WorkoutForm.GetDefaultWorkoutForm();
-    private Workout? EditableWorkout => WorkoutMapper.ToDomain(_workoutForm);
+    private Workout EditableWorkout => WorkoutMapper.ToDomain(_workoutForm);
 
 
     private string TotalInputTime => (
@@ -107,14 +107,21 @@
     ).ToString();
 
 
-    public void ApplyCurrentInput()
+    public void ApplyFormToCurrentWorkout()
     {
         WorkoutState.Workout = EditableWorkout;
         _workoutForm.Dirty = false;
     }
 
+    private void ApplyWorkoutToForm(Workout workout)
+    {
+        _workoutForm = WorkoutMapper.ToForm(workout);
+        StateHasChanged();
+    }
+
     protected override async Task OnInitializedAsync()
     {
-        ApplyCurrentInput();
+        ApplyFormToCurrentWorkout();
+        WorkoutState.OnWorkoutChanged += ApplyWorkoutToForm;
     }
 }

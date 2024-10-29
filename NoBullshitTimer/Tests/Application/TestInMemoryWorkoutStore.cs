@@ -4,14 +4,14 @@ using NUnit.Framework;
 
 namespace NoBullshitTimer.Tests.Application;
 
-public class TestInMemoryWorkoutStore
+public class TestInMemoryWorkoutRepository
 {
-    private IWorkoutStore _store;
+    private IWorkoutRepository _repository;
 
     [SetUp]
     public void Init()
     {
-        _store = new InMemoryWorkoutStore();
+        _repository = new InMemoryWorkoutRepository();
     }
     [Test]
     public void Test_Add()
@@ -19,7 +19,7 @@ public class TestInMemoryWorkoutStore
         var workout = Fixtures.SomeWorkout();
         try
         {
-            _store.Add(workout, "SomeName");
+            _repository.Add(workout, "SomeName");
         }
         catch (Exception)
         {
@@ -30,22 +30,22 @@ public class TestInMemoryWorkoutStore
     [Test]
     public void Test_AddExisting()
     {
-        _store.Add(Fixtures.SomeWorkout(), "SomeName");
-        Assert.Catch<AddingWorkoutException>(() => _store.Add(Fixtures.SomeWorkout(), "SomeName"));
+        _repository.Add(Fixtures.SomeWorkout(), "SomeName");
+        Assert.Catch<AddingWorkoutException>(() => _repository.Add(Fixtures.SomeWorkout(), "SomeName"));
     }
 
     [Test]
     public void Test_Get()
     {
         var workoutPlan = Fixtures.SomeWorkout();
-        _store.Add(workoutPlan, "SomeName");
-        var getResult = _store.Get("SomeName");
+        _repository.Add(workoutPlan, "SomeName");
+        var getResult = _repository.Get("SomeName");
         Assert.That(getResult, Is.EqualTo(workoutPlan));
     }
 
     [Test]
     public void Test_GetNonExisting()
     {
-        Assert.Catch<WorkoutNotFoundException>(() => _store.Get("SomeNonExistingName"));
+        Assert.Catch<WorkoutNotFoundException>(() => _repository.Get("SomeNonExistingName"));
     }
 }

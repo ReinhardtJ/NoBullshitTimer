@@ -16,7 +16,7 @@ public class WorkoutNotFoundException : Exception
     }
 }
 
-public interface IWorkoutStore
+public interface IWorkoutRepository
 {
     /// <summary>
     /// Adds a workout to this store under a specific name. There can't be more than one
@@ -28,7 +28,7 @@ public interface IWorkoutStore
     /// Gets thrown when attempting to add a workout with a name that already exists
     /// in this store
     /// </exception>
-    void Add(Workout? workout, string name);
+    void Add(Workout workout, string name);
 
     /// <summary>
     /// Retrieves a workout from this store using its name.

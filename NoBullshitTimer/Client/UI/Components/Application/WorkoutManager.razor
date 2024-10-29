@@ -16,7 +16,7 @@
         }
         else
         {
-        <Button @onclick="LoadSelectedWorkoutPlan">
+        <Button @onclick="LoadSelectedWorkout">
             Load Workout
         </Button>
         }
@@ -44,26 +44,26 @@
 
 
 @inject IntervalTimer Timer
-@inject IWorkoutStore WorkoutStore
+@inject IWorkoutRepository WorkoutRepository
 @inject IWorkoutState WorkoutState
 
 @code {
 
     private void SaveWorkoutPlan()
     {
-        WorkoutStore.Add(WorkoutState.Workout, _workoutToSaveName);
+        WorkoutRepository.Add(WorkoutState.Workout, _workoutToSaveName);
         SelectedWorkout = AllWorkoutPlans.Find(plan => plan.Label == _workoutToSaveName);
         ShowSaveWorkoutModal = false;
     }
 
     private string _workoutToSaveName = "";
     private DropdownItem<Workout?> SelectedWorkout { get; set; }
-    private List<DropdownItem<Workout?>> AllWorkoutPlans => WorkoutStore.GetAllWorkouts()
+    private List<DropdownItem<Workout?>> AllWorkoutPlans => WorkoutRepository.GetAllWorkouts()
         .Select((kv, i) => new DropdownItem<Workout>(kv.Key, kv.Value))
         .ToList();
 
 
-    private void LoadSelectedWorkoutPlan()
+    private void LoadSelectedWorkout()
     {
         if (SelectedWorkout == null)
             return;

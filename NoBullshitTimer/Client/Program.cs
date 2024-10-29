@@ -15,6 +15,6 @@ builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().Cre
 
 builder.Services.AddSingleton<WorkoutMapper>();
 builder.Services.AddSingleton<IWorkoutState, WorkoutState>();
-builder.Services.AddSingleton<IWorkoutStore, InMemoryWorkoutStore>();
+builder.Services.AddSingleton<IWorkoutRepository, InMemoryWorkoutRepository>();
 builder.Services.AddSingleton<IntervalTimer>();
 await builder.Build().RunAsync();
