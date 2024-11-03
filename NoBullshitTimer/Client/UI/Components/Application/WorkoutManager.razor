@@ -4,62 +4,38 @@
 @using NoBullshitTimer.Client.UI.Components.Generic
 <div>
     <h1 class="text-2xl pb-5">Manage Workouts</h1>
-    <div class="flex flex-row">
-        <Button @onclick="OpenSaveWorkoutModal">
-            Save Current Workout
-        </Button>
-        @if (SelectedWorkout == null)
+    <div class="flex flex-col">
+        @foreach (var workout in WorkoutStore.AllWorkouts)
         {
-        <Button ButtonType="ButtonType.Disabled">
-            Load Workout
-        </Button>
+            <WorkoutCard Workout="workout"></WorkoutCard>
         }
-        else
-        {
-        <Button @onclick="LoadSelectedWorkout">
-            Load Workout
-        </Button>
-        }
-        <Dropdown
-            TValue="Workout"
-            Items="AllWorkoutPlans"
-            SelectedItemChanged="OnSelectedWorkoutPlanChanged"></Dropdown>
     </div>
 
 </div>
 <Modal @bind-IsVisible="ShowSaveWorkoutModal" Title="Save Current Workout">
     <div class="mb-6">Save the currently applied workout</div>
-    <div class="flex flex-col items-center">
-        <TextInput Classes="mb-6" Hint="Workout Name" @bind-InputData="_workoutToSaveName"></TextInput>
-        @if (_workoutToSaveName == "")
-        {
-        <Button ButtonType="ButtonType.Disabled">Save</Button>
-        }
-        else
-        {
-        <Button @onclick="SaveWorkoutPlan">Save</Button>
-        }
-    </div>
 </Modal>
 
 
 @inject IntervalTimer Timer
 @inject IWorkoutRepository WorkoutRepository
-@inject IWorkoutState WorkoutState
+@inject IWorkoutStore WorkoutStore
 
 @code {
 
     private void SaveWorkoutPlan()
     {
-        WorkoutRepository.Add(WorkoutState.Workout, _workoutToSaveName);
-        SelectedWorkout = AllWorkoutPlans.Find(plan => plan.Label == _workoutToSaveName);
+        WorkoutRepository.Add(WorkoutStore.SelectedWorkout);
+        SelectedWorkout = AllWorkouts.Find(
+            dropdownItem => dropdownItem.Label == dropdownItem.Value.Name
+        );
         ShowSaveWorkoutModal = false;
     }
 
-    private string _workoutToSaveName = "";
-    private DropdownItem<Workout?> SelectedWorkout { get; set; }
-    private List<DropdownItem<Workout?>> AllWorkoutPlans => WorkoutRepository.GetAllWorkouts()
-        .Select((kv, i) => new DropdownItem<Workout>(kv.Key, kv.Value))
+    private DropdownItem<Workout>? SelectedWorkout { get; set; }
+    private List<DropdownItem<Workout>> AllWorkouts => WorkoutRepository
+        .GetAllWorkouts()
+        .Select(workout => new DropdownItem<Workout>(workout.Name, workout))
         .ToList();
 
 
@@ -68,7 +44,7 @@
         if (SelectedWorkout == null)
             return;
 
-        WorkoutState.Workout = SelectedWorkout.Value;
+        WorkoutStore.SelectedWorkout = SelectedWorkout.Value;
     }
 
     private bool ShowSaveWorkoutModal { get; set; }
@@ -79,8 +55,8 @@
 
 
 
-    private async Task OnSelectedWorkoutPlanChanged(DropdownItem<Workout?> newSelectedWorkoutPlan)
+    private async Task OnSelectedWorkoutPlanChanged(DropdownItem<Workout> newSelectedWorkout)
     {
-        SelectedWorkout = newSelectedWorkoutPlan;
+        SelectedWorkout = newSelectedWorkout;
     }
 }

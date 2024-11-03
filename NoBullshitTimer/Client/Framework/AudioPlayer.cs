@@ -13,7 +13,7 @@ public class AudioPlayer
         _playAudioFile = playAudioFile;
     }
 
-    public async void PlaySoundIfNecessary(IntervalTimer? timer, IWorkoutState state)
+    public async void PlaySoundIfNecessary(IntervalTimer? timer, IWorkoutStore store)
     {
         if (timer is null)
             return;
@@ -31,7 +31,7 @@ public class AudioPlayer
                 break;
         }
 
-        var workout = state.Workout;
+        var workout = store.SelectedWorkout;
         if (timer.SecondsLeft == workout.ExerciseTime.TotalSecondsInt() && timer.CurrentInterval is Work)
             await _playAudioFile($"{VoicePack}/Go.mp3");
 

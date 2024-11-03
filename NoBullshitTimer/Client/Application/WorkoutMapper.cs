@@ -10,6 +10,7 @@ public class WorkoutMapper
     public Workout ToDomain(WorkoutForm workoutForm)
     {
         return new Workout(
+            workoutForm.Name,
             TimeFormat.ParseTime(workoutForm.PrepareTime, 10),
             TimeFormat.ParseTime(workoutForm.ExerciseTime, 40),
             TimeFormat.ParseTime(workoutForm.RestTime, 20),
@@ -23,6 +24,7 @@ public class WorkoutMapper
     public WorkoutForm ToForm(Workout workout)
     {
         return new WorkoutForm(
+            workout.Name,
             TimeFormat.UnparseTime(workout.PrepareTime),
             TimeFormat.UnparseTime(workout.ExerciseTime),
             TimeFormat.UnparseTime(workout.RestTime),

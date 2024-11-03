@@ -13,9 +13,9 @@ public class TestIntervalTimer
     public void Setup()
     {
         var workout = Fixtures.SomeWorkout();
-        var workoutState = new WorkoutState(new InMemoryWorkoutRepository())
+        var workoutState = new WorkoutStore(new InMemoryWorkoutRepository())
         {
-            Workout = workout
+            SelectedWorkout = workout
         };
         _intervalTimer = new IntervalTimer(workoutState);
     }
@@ -175,9 +175,10 @@ public class TestIntervalTimer
     [Test]
     public void TestTimerSecondsLeft()
     {
-        var state = new WorkoutState(new InMemoryWorkoutRepository())
+        var state = new WorkoutStore(new InMemoryWorkoutRepository())
         {
-            Workout = new Workout(
+            SelectedWorkout = new Workout(
+                "SomeWorkout",
                 TimeSpan.FromSeconds(1),
                 TimeSpan.FromSeconds(3),
                 TimeSpan.FromSeconds(2),
@@ -202,7 +203,7 @@ public class TestIntervalTimer
     {
         var workout = Fixtures.SomeWorkout();
         workout.CircularSets = true;
-        var state = new WorkoutState(new InMemoryWorkoutRepository()) { Workout = workout };
+        var state = new WorkoutStore(new InMemoryWorkoutRepository()) { SelectedWorkout = workout };
         var intervalTimer = new IntervalTimer(state); // ready
         intervalTimer.GoToNextInterval(); // prepare
         intervalTimer.GoToNextInterval(); // ex 1 set 1

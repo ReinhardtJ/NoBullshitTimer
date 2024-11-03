@@ -1,9 +1,8 @@
-using NoBullshitTimer.Client.Framework;
-
 namespace NoBullshitTimer.Client.UI.Components.Application;
 
 public class WorkoutForm
 {
+    private string _name;
     private string _prepareTime;
     private string _exerciseTime;
     private string _restTime;
@@ -11,6 +10,16 @@ public class WorkoutForm
     private string _setsPerExercise;
     private bool _circularSets;
     private readonly List<ExerciseInput> _exercises;
+
+    public string Name
+    {
+        get => _name;
+        set
+        {
+            _name = value;
+            Dirty = true;
+        }
+    }
 
     public string PrepareTime
     {
@@ -77,6 +86,7 @@ public class WorkoutForm
     public bool Dirty { get; set; }
 
     public WorkoutForm(
+        string name,
         string prepareTime,
         string exerciseTime,
         string restTime,
@@ -84,7 +94,9 @@ public class WorkoutForm
         string setsPerExercise,
         List<ExerciseInput> exercises,
         bool circularSets
-    ) {
+    )
+    {
+        _name = name;
         _prepareTime = prepareTime;
         _exerciseTime = exerciseTime;
         _restTime = restTime;
@@ -141,6 +153,7 @@ public class WorkoutForm
     public static WorkoutForm GetDefaultWorkoutForm()
     {
         return new WorkoutForm(
+            "Workout Name",
             "00:10",
             "00:40",
             "00:20",

@@ -48,10 +48,10 @@
 </div>
 
 @inject IntervalTimer Timer
-@inject IWorkoutState WorkoutState
+@inject IWorkoutStore WorkoutStore
 
 @code {
-    private Workout Workout => WorkoutState.Workout;
+    private Workout SelectedWorkout => WorkoutStore.SelectedWorkout;
 
     private string SecondsLeftFormatted()
     {
@@ -66,11 +66,11 @@
         {
             if (Timer == null)
                 return "";
-            var intervalsPerExercise = Workout.SetsPerExercise * 2;
+            var intervalsPerExercise = SelectedWorkout.SetsPerExercise * 2;
             var intervalInExercise = (Timer.CurrentIntervalNr - 2) % intervalsPerExercise;
             intervalInExercise = intervalInExercise == 0 ? intervalsPerExercise : intervalInExercise;
             intervalInExercise = (intervalInExercise + 1) / 2;
-            return $"{(intervalInExercise)} / {Workout.SetsPerExercise}";
+            return $"{(intervalInExercise)} / {SelectedWorkout.SetsPerExercise}";
         }
     }
 
@@ -80,9 +80,9 @@
         {
             if (Timer == null)
                 return "";
-            var intervalsPerExercise = Workout.SetsPerExercise * 2;
+            var intervalsPerExercise = SelectedWorkout.SetsPerExercise * 2;
             var intervalInWorkout = (Timer.CurrentIntervalNr - 2);
-            var exercisesPerWorkout = Workout.Exercises.Count;
+            var exercisesPerWorkout = SelectedWorkout.Exercises.Count;
             var exerciseInWorkout = (intervalInWorkout + intervalsPerExercise - 1) / intervalsPerExercise;
             return $"{exerciseInWorkout} / {exercisesPerWorkout}";
         }

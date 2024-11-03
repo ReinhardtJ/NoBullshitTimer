@@ -2,12 +2,16 @@ namespace NoBullshitTimer.Client.Components;
 
 public enum IconType
 {
-    Close,
+    X,
     Previous,
     Next,
     Play,
     Pause,
     Up,
     Down,
-    Add
+    Add,
+    Kebap,
+    Edit,
+    Save,
+    Duplicate
 }

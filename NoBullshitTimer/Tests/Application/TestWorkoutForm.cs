@@ -12,6 +12,7 @@ public class TestWorkoutForm
     public void Setup()
     {
         _workoutForm = new WorkoutForm(
+            "SomeWorkout",
             "00:10",
             "00:40",
             "00:20",

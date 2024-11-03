@@ -8,17 +8,20 @@ public class InMemoryWorkoutRepository : IWorkoutRepository
 
     public InMemoryWorkoutRepository()
     {
-        _savedWorkouts.Add("HIIT Preset", WorkoutPresets.HIITPreset());
-        _savedWorkouts.Add("Tabata Preset", WorkoutPresets.TabataPreset());
-        _savedWorkouts.Add("Boxing Preset", WorkoutPresets.BoxingPreset());
+        var hiit = WorkoutPresets.HIITPreset();
+        var tabata = WorkoutPresets.TabataPreset();
+        var boxing = WorkoutPresets.BoxingPreset();
+        _savedWorkouts.Add(hiit.Name, hiit);
+        _savedWorkouts.Add(tabata.Name, tabata);
+        _savedWorkouts.Add(boxing.Name, boxing);
     }
 
-    public void Add(Workout workout, string name)
+    public void Add(Workout workout)
     {
-        var result = _savedWorkouts.TryAdd(name, workout);
+        var result = _savedWorkouts.TryAdd(workout.Name, workout);
         if (!result)
             throw new AddingWorkoutException(
-                $"Can't add workout \"{name}\" to the store because a workout with that name already exists"
+                $"Can't add workout \"{workout.Name}\" to the store because a workout with that name already exists"
             );
     }
 
@@ -31,8 +34,8 @@ public class InMemoryWorkoutRepository : IWorkoutRepository
 
     }
 
-    public IEnumerable<KeyValuePair<string, Workout>> GetAllWorkouts()
+    public IList<Workout> GetAllWorkouts()
     {
-        return _savedWorkouts.AsEnumerable();
+        return _savedWorkouts.Select(kv => kv.Value).ToList();
     }
 }

@@ -1,0 +1,48 @@
+@using NoBullshitTimer.Client.Components
+@using NoBullshitTimer.Client.Domain
+@using NoBullshitTimer.Client.UI.Components.Generic
+
+<div class="flex flex-row justify-between items-center p-2 m-1 rounded-md bg-zinc-800">
+    <span class="ml-4">@Workout.Name</span>
+    <div>
+        <Button>
+            <Icon Type="IconType.Up"></Icon>
+        </Button>
+        <Button>
+            <Icon Type="IconType.Down"></Icon>
+        </Button>
+        <ContextMenu>
+            <ContextMenuItem>
+                <span class="mr-2">
+                    <Icon Type="IconType.Edit"></Icon>
+                </span>
+                <p>Edit</p>
+            </ContextMenuItem>
+
+            <ContextMenuItem>
+                <span class="mr-2">
+                    <Icon Type="IconType.Save"></Icon>
+                </span>
+                <p>Save as Preset</p>
+            </ContextMenuItem>
+
+            <ContextMenuItem>
+                <span class="mr-2">
+                    <Icon Type="IconType.X"></Icon>
+                </span>
+                <p>Delete</p>
+            </ContextMenuItem>
+
+            <ContextMenuItem>
+                <span class="mr-2">
+                    <Icon Type="IconType.Duplicate"></Icon>
+                </span>
+                <p>Duplicate</p>
+            </ContextMenuItem>
+        </ContextMenu>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Workout Workout { get; set; }
+}

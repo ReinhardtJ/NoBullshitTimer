@@ -28,7 +28,7 @@ public interface IWorkoutRepository
     /// Gets thrown when attempting to add a workout with a name that already exists
     /// in this store
     /// </exception>
-    void Add(Workout workout, string name);
+    void Add(Workout workout);
 
     /// <summary>
     /// Retrieves a workout from this store using its name.
@@ -41,5 +41,5 @@ public interface IWorkoutRepository
     /// </exception>
     Workout Get(string name);
 
-    IEnumerable<KeyValuePair<string, Workout>> GetAllWorkouts();
+    IList<Workout> GetAllWorkouts();
 }

@@ -19,7 +19,7 @@ public class TestInMemoryWorkoutRepository
         var workout = Fixtures.SomeWorkout();
         try
         {
-            _repository.Add(workout, "SomeName");
+            _repository.Add(workout);
         }
         catch (Exception)
         {
@@ -30,17 +30,17 @@ public class TestInMemoryWorkoutRepository
     [Test]
     public void Test_AddExisting()
     {
-        _repository.Add(Fixtures.SomeWorkout(), "SomeName");
-        Assert.Catch<AddingWorkoutException>(() => _repository.Add(Fixtures.SomeWorkout(), "SomeName"));
+        _repository.Add(Fixtures.SomeWorkout());
+        Assert.Catch<AddingWorkoutException>(() => _repository.Add(Fixtures.SomeWorkout()));
     }
 
     [Test]
     public void Test_Get()
     {
-        var workoutPlan = Fixtures.SomeWorkout();
-        _repository.Add(workoutPlan, "SomeName");
-        var getResult = _repository.Get("SomeName");
-        Assert.That(getResult, Is.EqualTo(workoutPlan));
+        var workout = Fixtures.SomeWorkout();
+        _repository.Add(workout);
+        var getResult = _repository.Get(workout.Name);
+        Assert.That(getResult, Is.EqualTo(workout));
     }
 
     [Test]

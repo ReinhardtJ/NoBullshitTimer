@@ -22,22 +22,22 @@
         <TimerInfo />
         <WorkoutEditor />
         <WorkoutManager />
-        <p>
-            *please note that this is an early version of this software, so certain things might <i>not</i> work perfectly. However, the core functionality is given and thoroughly tested
+        <p class="mt-4">
+            *please note that this is an early version of this software, so
+            certain things might <i>not</i> work perfectly
         </p>
     </div>
 </div>
 
 @inject IJSRuntime JsRuntime
 @inject IntervalTimer Timer
-@inject IWorkoutState WorkoutState
+@inject IWorkoutStore WorkoutStore
 
 @code {
     AudioPlayer _audioPlayer;
     private void OnTimerStateChanged()
     {
-        _audioPlayer?.PlaySoundIfNecessary(Timer, WorkoutState);
-        Console.WriteLine("OnTimerTick in Index.razor");
+        _audioPlayer?.PlaySoundIfNecessary(Timer, WorkoutStore);
         InvokeAsync(StateHasChanged);
     }
 
@@ -45,7 +45,7 @@
     {
         Timer.OnTimerStateChanged += OnTimerStateChanged;
         _audioPlayer = new AudioPlayer(
-            async fileName => await JsRuntime.InvokeVoidAsync("playSound", $"/audio/{fileName}")
+            async fileName => await JsRuntime.InvokeVoidAsync("playSound", $"util/audio/{fileName}")
         );
     }
 

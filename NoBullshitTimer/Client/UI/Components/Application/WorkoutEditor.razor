@@ -7,25 +7,29 @@
     <div class="flex justify-center">
         <div class="inline-grid grid-cols-[auto_auto_auto] gap-4">
 
+            <span class="flex items-center text-lg">Name</span>
+            <TextInput Classes="text-right" @bind-InputData="_workoutForm.Name"/>
+            <span></span>
+
             <span class="flex items-center text-lg">Circular Sets</span>
             <input type="checkbox" @bind="_workoutForm.CircularSets" class="w-5 h-5 self-center"/>
             <span></span>
 
             <span class="flex items-center text-lg">Prepare Time</span>
             <TextInput Classes="text-right" @bind-InputData="_workoutForm.PrepareTime"/>
-            <span class="inline-flex items-center text-gray-500">(@EditableWorkout.PrepareTime)</span>
+            <span class="inline-flex items-center text-gray-500">(@WorkoutInEditing.PrepareTime)</span>
 
             <span class="flex items-center text-lg">Work Time</span>
             <TextInput Classes="text-right" @bind-InputData="_workoutForm.ExerciseTime"/>
-            <span class="inline-flex items-center text-gray-500">(@EditableWorkout.ExerciseTime)</span>
+            <span class="inline-flex items-center text-gray-500">(@WorkoutInEditing.ExerciseTime)</span>
 
             <span class="flex items-center text-lg">Rest Time</span>
             <TextInput Classes="text-right" @bind-InputData="_workoutForm.RestTime"/>
-            <span class="inline-flex items-center text-gray-500">(@EditableWorkout.RestTime)</span>
+            <span class="inline-flex items-center text-gray-500">(@WorkoutInEditing.RestTime)</span>
 
             <span class="flex items-center text-lg">Cooldown Time</span>
             <TextInput Classes="text-right" @bind-InputData="_workoutForm.CooldownTime"/>
-            <span class="inline-flex items-center text-gray-500">(@EditableWorkout.CooldownTime)</span>
+            <span class="inline-flex items-center text-gray-500">(@WorkoutInEditing.CooldownTime)</span>
 
             <span class="flex items-center text-lg">Intervals</span>
             <TextInput Classes="text-right" @bind-InputData="_workoutForm.SetsPerExercise"/>
@@ -67,13 +71,13 @@
                 @if (_workoutForm.Exercises.Count > 1)
                 {
                     <Button @onclick="_ => _workoutForm.DeleteExercise(exerciseInput)">
-                        <Icon Type="IconType.Close" />
+                        <Icon Type="IconType.X" />
                     </Button>
                 }
                 else
                 {
                     <Button ButtonType="ButtonType.Disabled">
-                        <Icon Type="IconType.Close" />
+                        <Icon Type="IconType.X" />
                     </Button>
                 }
             </div>
@@ -90,26 +94,33 @@
 </div>
 
 @inject IntervalTimer Timer
-@inject IWorkoutState WorkoutState
+@inject IWorkoutStore WorkoutStore
 @inject WorkoutMapper WorkoutMapper
 
 @code {
-    private WorkoutForm _workoutForm = WorkoutForm.GetDefaultWorkoutForm();
-    private Workout EditableWorkout => WorkoutMapper.ToDomain(_workoutForm);
+    private WorkoutForm _workoutForm;
+    private Workout WorkoutInEditing => WorkoutMapper.ToDomain(_workoutForm);
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        _workoutForm = WorkoutMapper.ToForm(WorkoutStore.SelectedWorkout);
+        WorkoutStore.OnWorkoutChanged += ApplyWorkoutToForm;
+    }
 
 
     private string TotalInputTime => (
-        EditableWorkout.PrepareTime
-        + EditableWorkout.Exercises.Count
-        * EditableWorkout.SetsPerExercise
-        * (EditableWorkout.ExerciseTime + EditableWorkout.RestTime)
-        + EditableWorkout.CooldownTime
+        WorkoutInEditing.PrepareTime
+        + WorkoutInEditing.Exercises.Count
+        * WorkoutInEditing.SetsPerExercise
+        * (WorkoutInEditing.ExerciseTime + WorkoutInEditing.RestTime)
+        + WorkoutInEditing.CooldownTime
     ).ToString();
 
 
     public void ApplyFormToCurrentWorkout()
     {
-        WorkoutState.Workout = EditableWorkout;
+        WorkoutStore.SelectedWorkout = WorkoutInEditing;
         _workoutForm.Dirty = false;
     }
 
@@ -119,9 +130,4 @@
         StateHasChanged();
     }
 
-    protected override async Task OnInitializedAsync()
-    {
-        ApplyFormToCurrentWorkout();
-        WorkoutState.OnWorkoutChanged += ApplyWorkoutToForm;
-    }
 }

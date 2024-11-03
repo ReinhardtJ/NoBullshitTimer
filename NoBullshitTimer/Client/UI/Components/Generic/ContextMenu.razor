@@ -1,0 +1,73 @@
+@using NoBullshitTimer.Client.Components
+
+<span @ref="_buttonRef">
+    <Button @onclick="Toggle" ButtonType="ButtonType.Secondary">
+        <Icon Type="IconType.Kebap"></Icon>
+    </Button>
+</span>
+
+@if (_contextMenuOpen)
+{
+    <div class="fixed inset-0" @onclick="Close"></div>
+    <div @ref="_menuRef"
+         class="fixed z-50 bg-zinc-800 rounded-md shadow-lg border border-zinc-700 p-2 min-w-[200px]">
+        @ChildContent
+    </div>
+}
+
+@inject IJSRuntime JS
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private bool _contextMenuOpen;
+    private ElementReference _buttonRef;
+    private ElementReference _menuRef;
+    private bool _positionUpdated = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_contextMenuOpen && !_positionUpdated)
+        {
+            _positionUpdated = true;
+            await UpdateMenuPosition();
+        }
+    }
+
+    private async Task UpdateMenuPosition()
+    {
+        var button = await JS.InvokeAsync<BoundingClientRect>("getBoundingClientRect", _buttonRef);
+        var menuTop = button.Top + button.Height;
+        var menuLeft = button.Left;
+
+        await JS.InvokeVoidAsync("setElementPosition", _menuRef, menuTop, menuLeft);
+    }
+
+    private void Toggle()
+    {
+        _contextMenuOpen = !_contextMenuOpen;
+        _positionUpdated = false; // Reset the flag when toggling
+        StateHasChanged();
+    }
+
+    private void Close()
+    {
+        _contextMenuOpen = false;
+    }
+
+    private class BoundingClientRect
+    {
+        public double Top { get; set; }
+        public double Right { get; set; }
+        public double Bottom { get; set; }
+        public double Left { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+    }
+
+    private class WindowDimensions
+    {
+        public double Width { get; set; }
+        public double Height { get; set; }
+    }
+}

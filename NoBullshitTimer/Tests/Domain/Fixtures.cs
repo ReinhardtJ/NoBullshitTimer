@@ -7,6 +7,7 @@ public static class Fixtures
     public static Workout SomeWorkout()
     {
         return new Workout(
+            "SomeWorkout",
             TimeSpan.FromSeconds(10),
             TimeSpan.FromSeconds(40),
             TimeSpan.FromSeconds(20),

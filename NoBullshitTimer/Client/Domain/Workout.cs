@@ -2,6 +2,7 @@ namespace NoBullshitTimer.Client.Domain;
 
 public class Workout
 {
+    public string Name;
     public TimeSpan PrepareTime;
     public TimeSpan ExerciseTime;
     public TimeSpan RestTime;
@@ -11,6 +12,7 @@ public class Workout
     public bool CircularSets;
 
     public Workout(
+        string name,
         TimeSpan prepareTime,
         TimeSpan exerciseTime,
         TimeSpan restTime,
@@ -20,6 +22,7 @@ public class Workout
         bool circularSets
     )
     {
+        Name = name;
         PrepareTime = prepareTime;
         ExerciseTime = exerciseTime;
         RestTime = restTime;
@@ -45,6 +48,7 @@ public static class WorkoutPresets
     public static Workout HIITPreset()
     {
         return new Workout(
+            "HIIT",
             TimeSpan.FromMinutes(1),
             TimeSpan.FromSeconds(40),
             TimeSpan.FromSeconds(20),
@@ -59,6 +63,7 @@ public static class WorkoutPresets
     public static Workout TabataPreset()
     {
         return new Workout(
+            "Tabata",
             TimeSpan.FromMinutes(1),
             TimeSpan.FromSeconds(20),
             TimeSpan.FromSeconds(10),
@@ -72,6 +77,7 @@ public static class WorkoutPresets
     public static Workout BoxingPreset()
     {
         return new Workout(
+            "Boxing",
             TimeSpan.FromMinutes(1),
             TimeSpan.FromMinutes(3),
             TimeSpan.FromMinutes(1),

@@ -15,10 +15,10 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
     public bool TimerPaused = true;
     private LinkedList<Interval> _intervals = new();
 
-    public IntervalTimer(IWorkoutState workoutState)
+    public IntervalTimer(IWorkoutStore workoutStore)
     {
-        workoutState.OnWorkoutChanged += InitIntervalTimer;
-        InitIntervalTimer(workoutState.Workout);
+        workoutStore.OnWorkoutChanged += InitIntervalTimer;
+        InitIntervalTimer(workoutStore.SelectedWorkout);
     }
 
     private void InitIntervalTimer(Workout workout)
