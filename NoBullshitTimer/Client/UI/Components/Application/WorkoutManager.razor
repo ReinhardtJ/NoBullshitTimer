@@ -2,18 +2,22 @@
 @using NoBullshitTimer.Client.Components
 @using NoBullshitTimer.Client.Domain
 @using NoBullshitTimer.Client.UI.Components.Generic
+
 <div>
     <h1 class="text-2xl pb-5">Manage Workouts</h1>
     <div class="flex flex-col">
         @foreach (var workout in WorkoutStore.AllWorkouts)
         {
-            <WorkoutCard Workout="workout"></WorkoutCard>
+            <WorkoutCard
+                Workout="workout"
+                OnEditClick="() => HandleOnEditClick(workout)"
+            ></WorkoutCard>
         }
     </div>
 
 </div>
-<Modal @bind-IsVisible="ShowSaveWorkoutModal" Title="Save Current Workout">
-    <div class="mb-6">Save the currently applied workout</div>
+<Modal @bind-IsVisible="ShowEditWorkoutModal" Title="Edit Current Workout">
+    <WorkoutEditor></WorkoutEditor>
 </Modal>
 
 
@@ -23,40 +27,17 @@
 
 @code {
 
-    private void SaveWorkoutPlan()
+    private bool ShowEditWorkoutModal { get; set; }
+
+    protected override void OnInitialized()
     {
-        WorkoutRepository.Add(WorkoutStore.SelectedWorkout);
-        SelectedWorkout = AllWorkouts.Find(
-            dropdownItem => dropdownItem.Label == dropdownItem.Value.Name
-        );
-        ShowSaveWorkoutModal = false;
+        WorkoutStore.OnWorkoutChanged += _ => StateHasChanged();
     }
 
-    private DropdownItem<Workout>? SelectedWorkout { get; set; }
-    private List<DropdownItem<Workout>> AllWorkouts => WorkoutRepository
-        .GetAllWorkouts()
-        .Select(workout => new DropdownItem<Workout>(workout.Name, workout))
-        .ToList();
-
-
-    private void LoadSelectedWorkout()
+    private void HandleOnEditClick(Workout workout)
     {
-        if (SelectedWorkout == null)
-            return;
-
-        WorkoutStore.SelectedWorkout = SelectedWorkout.Value;
+        WorkoutStore.SelectedWorkout = workout;
+        ShowEditWorkoutModal = true;
     }
 
-    private bool ShowSaveWorkoutModal { get; set; }
-    private void OpenSaveWorkoutModal()
-    {
-        ShowSaveWorkoutModal = true;
-    }
-
-
-
-    private async Task OnSelectedWorkoutPlanChanged(DropdownItem<Workout> newSelectedWorkout)
-    {
-        SelectedWorkout = newSelectedWorkout;
-    }
 }

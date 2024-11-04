@@ -1,8 +1,10 @@
+@using BlazorComponentUtilities
+@using NoBullshitTimer.Client.Application
 @using NoBullshitTimer.Client.Components
 @using NoBullshitTimer.Client.Domain
 @using NoBullshitTimer.Client.UI.Components.Generic
 
-<div class="flex flex-row justify-between items-center p-2 m-1 rounded-md bg-zinc-800">
+<div class="@ClassToRender" @onclick="SelectWorkout">
     <span class="ml-4">@Workout.Name</span>
     <div>
         <Button>
@@ -12,11 +14,18 @@
             <Icon Type="IconType.Down"></Icon>
         </Button>
         <ContextMenu>
-            <ContextMenuItem>
+            <ContextMenuItem OnClick="() => OnEditClick.InvokeAsync()">
                 <span class="mr-2">
                     <Icon Type="IconType.Edit"></Icon>
                 </span>
                 <p>Edit</p>
+            </ContextMenuItem>
+
+            <ContextMenuItem>
+                <span class="mr-2">
+                    <Icon Type="IconType.Duplicate"></Icon>
+                </span>
+                <p>Duplicate</p>
             </ContextMenuItem>
 
             <ContextMenuItem>
@@ -32,17 +41,40 @@
                 </span>
                 <p>Delete</p>
             </ContextMenuItem>
-
-            <ContextMenuItem>
-                <span class="mr-2">
-                    <Icon Type="IconType.Duplicate"></Icon>
-                </span>
-                <p>Duplicate</p>
-            </ContextMenuItem>
         </ContextMenu>
     </div>
 </div>
 
+@inject IWorkoutStore WorkoutStore
+
 @code {
     [Parameter] public Workout Workout { get; set; }
+
+    [Parameter] public EventCallback OnEditClick { get; set; }
+
+    private bool IsSelectedWorkout => Workout == WorkoutStore.SelectedWorkout;
+
+    private string ClassToRender { get; set; } = "";
+
+
+    protected override void OnParametersSet()
+    {
+        UpdateCssClasses(Workout);
+        WorkoutStore.OnWorkoutChanged += UpdateCssClasses;
+    }
+
+    private void UpdateCssClasses(Workout _)
+    {
+        ClassToRender = new CssBuilder()
+            .AddClass("flex flex-row justify-between items-center p-2 m-1 rounded-md bg-zinc-800")
+            .AddClass("border border-red-700", IsSelectedWorkout)
+            .Build();
+        StateHasChanged();
+    }
+
+    private void SelectWorkout(MouseEventArgs args)
+    {
+        WorkoutStore.SelectedWorkout = Workout;
+    }
+
 }

@@ -1,4 +1,4 @@
-namespace NoBullshitTimer.Client.Components;
+namespace NoBullshitTimer.Client.UI.Components.Generic;
 
 
 public enum ButtonType

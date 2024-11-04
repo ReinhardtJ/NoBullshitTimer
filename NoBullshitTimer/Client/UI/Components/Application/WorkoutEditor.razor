@@ -44,7 +44,7 @@
         @foreach (var exerciseInput in _workoutForm.Exercises)
         {
             <div class="col-span-1">
-                <Button @onclick="_ => _workoutForm.AddExercise(exerciseInput)">
+                <Button OnClick="() => _workoutForm.AddExercise(exerciseInput)">
                     <Icon Type="IconType.Add" />
                 </Button>
             </div>
@@ -53,7 +53,7 @@
             </div>
             <div class="col-span-1">
                 <Button
-                    @onclick="_ => _workoutForm.MoveExerciseUp(exerciseInput)"
+                    OnClick="() => _workoutForm.MoveExerciseUp(exerciseInput)"
                     ButtonType="_workoutForm.IsFirstExercise(exerciseInput) ? ButtonType.Disabled : ButtonType.Primary"
                 >
                     <Icon Type="IconType.Up" />
@@ -61,7 +61,7 @@
             </div>
             <div class="col-span-1">
                 <Button
-                    @onclick="_ => _workoutForm.MoveExerciseDown(exerciseInput)"
+                    OnClick="() => _workoutForm.MoveExerciseDown(exerciseInput)"
                     ButtonType="_workoutForm.IsLastExercise(exerciseInput) ? ButtonType.Disabled : ButtonType.Primary"
                 >
                     <Icon Type="IconType.Down" />
@@ -70,7 +70,7 @@
             <div class="col-span-1">
                 @if (_workoutForm.Exercises.Count > 1)
                 {
-                    <Button @onclick="_ => _workoutForm.DeleteExercise(exerciseInput)">
+                    <Button OnClick="() => _workoutForm.DeleteExercise(exerciseInput)">
                         <Icon Type="IconType.X" />
                     </Button>
                 }
@@ -86,7 +86,7 @@
     <div class="flex flex-row justify-center">
         <Button
             ButtonType="_workoutForm.Dirty ? ButtonType.Primary : ButtonType.Disabled"
-            @onclick="ApplyFormToCurrentWorkout"
+            OnClick="ApplyFormToCurrentWorkout"
         >
             Apply Changes
         </Button>
@@ -95,6 +95,7 @@
 
 @inject IntervalTimer Timer
 @inject IWorkoutStore WorkoutStore
+@inject IWorkoutRepository WorkoutRepository
 @inject WorkoutMapper WorkoutMapper
 
 @code {
@@ -104,7 +105,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _workoutForm = WorkoutMapper.ToForm(WorkoutStore.SelectedWorkout);
+        ApplyWorkoutToForm(WorkoutStore.SelectedWorkout);
         WorkoutStore.OnWorkoutChanged += ApplyWorkoutToForm;
     }
 
@@ -122,11 +123,13 @@
     {
         WorkoutStore.SelectedWorkout = WorkoutInEditing;
         _workoutForm.Dirty = false;
+        StateHasChanged();
     }
 
     private void ApplyWorkoutToForm(Workout workout)
     {
         _workoutForm = WorkoutMapper.ToForm(workout);
+        _workoutForm.OnFormChanged += StateHasChanged;
         StateHasChanged();
     }
 

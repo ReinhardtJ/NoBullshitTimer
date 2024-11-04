@@ -1,9 +1,15 @@
 @using BlazorComponentUtilities
-@using NoBullshitTimer.Client.Components
 
-<button class="@ClassToRender" @attributes="AdditionalAttributes" disabled="@(ButtonType == ButtonType.Disabled)">
-    @ChildContent
-</button>
+<span @onclick:stopPropagation="@StopPropagation">
+    <button
+        class="@ClassToRender"
+        @attributes="AdditionalAttributes"
+        disabled="@(ButtonType == ButtonType.Disabled)"
+        @onclick="HandleClick"
+    >
+        @ChildContent
+    </button>
+</span>
 
 @code {
     [Parameter] public RenderFragment ChildContent { get; set; }
@@ -15,6 +21,10 @@
 
     [Parameter] public ButtonType ButtonType { get; set; } = ButtonType.Primary;
 
+    [Parameter] public bool StopPropagation { get; set; }
+
+    [Parameter] public EventCallback OnClick { get; set; }
+
     private string ClassToRender { get; set; } = "";
 
     protected override void OnParametersSet()
@@ -25,6 +35,11 @@
             .AddClass("bg-zinc-800 hover:bg-zinc-500", ButtonType == ButtonType.Secondary)
             .AddClass("bg-zinc-800 text-gray-400", ButtonType == ButtonType.Disabled)
             .Build();
+    }
+
+    private async Task HandleClick()
+    {
+        await OnClick.InvokeAsync();
     }
 
 

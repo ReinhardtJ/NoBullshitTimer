@@ -1,19 +1,25 @@
 @using NoBullshitTimer.Client.Components
 
 <span @ref="_buttonRef">
-    <Button @onclick="Toggle" ButtonType="ButtonType.Secondary">
+    <Button
+        OnClick="Toggle"
+        StopPropagation="@true"
+        ButtonType="ButtonType.Secondary">
         <Icon Type="IconType.Kebap"></Icon>
     </Button>
 </span>
 
 @if (_contextMenuOpen)
 {
-    <div class="fixed inset-0" @onclick="Close"></div>
+    <div @onclick:stopPropagation="@true">
+        <div class="fixed z-40 inset-0" @onclick="Close"></div>
+    </div>
     <div @ref="_menuRef"
          class="fixed z-50 bg-zinc-800 rounded-md shadow-lg border border-zinc-700 p-2 min-w-[200px]">
         @ChildContent
     </div>
 }
+
 
 @inject IJSRuntime JS
 
@@ -70,4 +76,5 @@
         public double Width { get; set; }
         public double Height { get; set; }
     }
+
 }

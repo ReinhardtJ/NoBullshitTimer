@@ -10,6 +10,9 @@ public class WorkoutForm
     private string _setsPerExercise;
     private bool _circularSets;
     private readonly List<ExerciseInput> _exercises;
+    private bool _dirty;
+
+    public event Action OnFormChanged = () => { };
 
     public string Name
     {
@@ -18,6 +21,7 @@ public class WorkoutForm
         {
             _name = value;
             Dirty = true;
+            OnFormChanged.Invoke();
         }
     }
 
@@ -28,6 +32,7 @@ public class WorkoutForm
         {
             _prepareTime = value;
             Dirty = true;
+            OnFormChanged.Invoke();
         }
     }
 
@@ -38,6 +43,7 @@ public class WorkoutForm
         {
             _exerciseTime = value;
             Dirty = true;
+            OnFormChanged.Invoke();
         }
     }
 
@@ -48,6 +54,7 @@ public class WorkoutForm
         {
             _restTime = value;
             Dirty = true;
+            OnFormChanged.Invoke();
         }
     }
 
@@ -58,6 +65,7 @@ public class WorkoutForm
         {
             _cooldownTime = value;
             Dirty = true;
+            OnFormChanged.Invoke();
         }
     }
 
@@ -68,6 +76,7 @@ public class WorkoutForm
         {
             _setsPerExercise = value;
             Dirty = true;
+            OnFormChanged.Invoke();
         }
     }
 
@@ -78,12 +87,21 @@ public class WorkoutForm
         {
             _circularSets = value;
             Dirty = true;
+            OnFormChanged.Invoke();
         }
     }
 
     public ICollection<ExerciseInput> Exercises => _exercises;
 
-    public bool Dirty { get; set; }
+    public bool Dirty
+    {
+        get => _dirty;
+        set
+        {
+            _dirty = value;
+            OnFormChanged.Invoke();
+        }
+    }
 
     public WorkoutForm(
         string name,
@@ -111,6 +129,7 @@ public class WorkoutForm
     {
         _exercises.Remove(exerciseInput);
         Dirty = true;
+        OnFormChanged.Invoke();
     }
 
     public void AddExercise(ExerciseInput addAfter)
@@ -118,6 +137,7 @@ public class WorkoutForm
         var insertIndex = _exercises.IndexOf(addAfter) + 1;
         _exercises.Insert(insertIndex, new ExerciseInput ($"Exercise {insertIndex + 1}"));
         Dirty = true;
+        OnFormChanged.Invoke();
     }
 
     public void MoveExerciseUp(ExerciseInput exerciseInput)
@@ -128,6 +148,8 @@ public class WorkoutForm
         var previous = _exercises[index - 1];
         _exercises[index] = previous;
         _exercises[index - 1] = exerciseInput;
+        Dirty = true;
+        OnFormChanged.Invoke();
     }
 
     public void MoveExerciseDown(ExerciseInput exerciseInput)
@@ -138,6 +160,8 @@ public class WorkoutForm
         var next = _exercises[index + 1];
         _exercises[index] = next;
         _exercises[index + 1] = exerciseInput;
+        Dirty = true;
+        OnFormChanged.Invoke();
     }
 
     public bool IsFirstExercise(ExerciseInput exerciseInput)

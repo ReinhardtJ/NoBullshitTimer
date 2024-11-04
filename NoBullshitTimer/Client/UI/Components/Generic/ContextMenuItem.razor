@@ -1,8 +1,14 @@
-<div class="flex flex-row items-center bg-zinc-800 hover:bg-zinc-700 rounded-md px-1 py-2">
-    @ChildContent
-</div>
+<span>
+    <div class="flex flex-row items-center bg-zinc-800 hover:bg-zinc-700
+                rounded-md px-1 py-2"
+         @onclick="OnClick"
+    >
+        @ChildContent
+    </div>
+</span>
 
 @code {
-    [Parameter]
-    public RenderFragment ChildContent { get; set; }
+    [Parameter] public RenderFragment ChildContent { get; set; }
+
+    [Parameter] public EventCallback OnClick { get; set; }
 }
