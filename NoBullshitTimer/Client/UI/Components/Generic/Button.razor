@@ -1,6 +1,5 @@
 @using BlazorComponentUtilities
 
-<span @onclick:stopPropagation="@StopPropagation">
     <button
         class="@ClassToRender"
         @attributes="AdditionalAttributes"
@@ -9,7 +8,6 @@
     >
         @ChildContent
     </button>
-</span>
 
 @code {
     [Parameter] public RenderFragment ChildContent { get; set; }
@@ -21,9 +19,7 @@
 
     [Parameter] public ButtonType ButtonType { get; set; } = ButtonType.Primary;
 
-    [Parameter] public bool StopPropagation { get; set; }
-
-    [Parameter] public EventCallback OnClick { get; set; }
+    [Parameter] public EventCallback OnButtonClick { get; set; }
 
     private string ClassToRender { get; set; } = "";
 
@@ -39,7 +35,7 @@
 
     private async Task HandleClick()
     {
-        await OnClick.InvokeAsync();
+        await OnButtonClick.InvokeAsync();
     }
 
 

@@ -2,8 +2,8 @@
 
 <span @ref="_buttonRef">
     <Button
-        OnClick="Toggle"
-        StopPropagation="@true"
+        OnButtonClick="Toggle"
+        @onclick:stopPropagation
         ButtonType="ButtonType.Secondary">
         <Icon Type="IconType.Kebap"></Icon>
     </Button>

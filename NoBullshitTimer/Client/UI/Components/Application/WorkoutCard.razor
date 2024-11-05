@@ -7,10 +7,12 @@
 <div class="@ClassToRender" @onclick="SelectWorkout">
     <span class="ml-4">@Workout.Name</span>
     <div>
-        <Button>
+        <Button
+            @onclick:stopPropagation
+        >
             <Icon Type="IconType.Up"></Icon>
         </Button>
-        <Button>
+        <Button @onclick:stopPropagation>
             <Icon Type="IconType.Down"></Icon>
         </Button>
         <ContextMenu>
