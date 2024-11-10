@@ -2,17 +2,16 @@
 @using NoBullshitTimer.Client.Application
 @using NoBullshitTimer.Client.Components
 @using NoBullshitTimer.Client.Domain
+@using NoBullshitTimer.Client.Framework
 @using NoBullshitTimer.Client.UI.Components.Generic
 
 <div class="@ClassToRender" @onclick="SelectWorkout">
     <span class="ml-4">@Workout.Name</span>
     <div>
-        <Button
-            @onclick:stopPropagation
-        >
+        <Button @onclick:stopPropagation OnButtonClick="MoveWorkoutUp">
             <Icon Type="IconType.Up"></Icon>
         </Button>
-        <Button @onclick:stopPropagation>
+        <Button @onclick:stopPropagation OnButtonClick="MoveWorkoutDown">
             <Icon Type="IconType.Down"></Icon>
         </Button>
         <ContextMenu>
@@ -61,11 +60,11 @@
 
     protected override void OnParametersSet()
     {
-        UpdateCssClasses(Workout);
-        WorkoutStore.OnWorkoutChanged += UpdateCssClasses;
+        UpdateCssClasses();
+        WorkoutStore.OnWorkoutStoreStateChanged += UpdateCssClasses;
     }
 
-    private void UpdateCssClasses(Workout _)
+    private void UpdateCssClasses()
     {
         ClassToRender = new CssBuilder()
             .AddClass("flex flex-row justify-between items-center p-2 m-1 rounded-md bg-zinc-800")
@@ -79,4 +78,15 @@
         WorkoutStore.SelectedWorkout = Workout;
     }
 
+    private void MoveWorkoutUp()
+    {
+        Console.WriteLine("move workout up");
+        WorkoutStore.MoveWorkoutUp(Workout);
+    }
+
+    private void MoveWorkoutDown()
+    {
+        Console.WriteLine("move workout down");
+        WorkoutStore.MoveWorkoutDown(Workout);
+    }
 }

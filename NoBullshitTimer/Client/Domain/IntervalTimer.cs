@@ -5,6 +5,7 @@ namespace NoBullshitTimer.Client.Domain;
 
 public class IntervalTimer : IDisposable, IAsyncDisposable
 {
+    private readonly IWorkoutStore _workoutStore;
     private Timer? _timer;
     private LinkedListNode<Interval>? CurrentIntervalNode { get; set; }
 
@@ -17,12 +18,14 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
 
     public IntervalTimer(IWorkoutStore workoutStore)
     {
-        workoutStore.OnWorkoutChanged += InitIntervalTimer;
-        InitIntervalTimer(workoutStore.SelectedWorkout);
+        _workoutStore = workoutStore;
+        _workoutStore.OnWorkoutStoreStateChanged += InitIntervalTimer;
+        InitIntervalTimer();
     }
 
-    private void InitIntervalTimer(Workout workout)
+    private void InitIntervalTimer()
     {
+        var workout = _workoutStore.SelectedWorkout;
         _intervals = new();
         _intervals.AddLast(new Ready());
         _intervals.AddLast(new Prepare(workout.PrepareTime.TotalSecondsInt()));

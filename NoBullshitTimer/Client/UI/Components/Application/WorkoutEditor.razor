@@ -103,8 +103,8 @@
 
     protected override void OnInitialized()
     {
-        ApplyWorkoutToForm(WorkoutStore.SelectedWorkout);
-        WorkoutStore.OnWorkoutChanged += ApplyWorkoutToForm;
+        ApplyWorkoutToForm();
+        WorkoutStore.OnWorkoutStoreStateChanged += ApplyWorkoutToForm;
     }
 
 
@@ -131,9 +131,9 @@
         StateHasChanged();
     }
 
-    private void ApplyWorkoutToForm(Workout workout)
+    private void ApplyWorkoutToForm()
     {
-        _workoutForm = WorkoutMapper.ToForm(workout);
+        _workoutForm = WorkoutMapper.ToForm(WorkoutStore.SelectedWorkout);
         _workoutForm.OnFormChanged += StateHasChanged;
         _originalName = _workoutForm.Name;
         StateHasChanged();

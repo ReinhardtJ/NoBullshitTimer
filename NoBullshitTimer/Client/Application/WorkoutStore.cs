@@ -1,4 +1,5 @@
 using NoBullshitTimer.Client.Domain;
+using NoBullshitTimer.Client.Framework;
 
 namespace NoBullshitTimer.Client.Application;
 
@@ -6,7 +7,7 @@ public class WorkoutStore : IWorkoutStore
 {
     private readonly IWorkoutRepository _workoutRepository;
     private Workout _selectedWorkout = null!;
-    public event Action<Workout> OnWorkoutChanged = _ => { };
+    public event Action OnWorkoutStoreStateChanged = () => { };
 
     private IList<Workout> _allWorkouts = new List<Workout>();
 
@@ -33,7 +34,7 @@ public class WorkoutStore : IWorkoutStore
         set
         {
             _selectedWorkout = value;
-            OnWorkoutChanged.Invoke(value);
+            OnWorkoutStoreStateChanged.Invoke();
         }
     }
 
@@ -43,4 +44,16 @@ public class WorkoutStore : IWorkoutStore
     }
 
     public IList<Workout> AllWorkouts => _allWorkouts;
+
+    public void MoveWorkoutUp(Workout workout)
+    {
+        AllWorkouts.SwapToFront(workout);
+        OnWorkoutStoreStateChanged.Invoke();
+    }
+
+    public void MoveWorkoutDown(Workout workout)
+    {
+        AllWorkouts.SwapToBack(workout);
+        OnWorkoutStoreStateChanged.Invoke();
+    }
 }
