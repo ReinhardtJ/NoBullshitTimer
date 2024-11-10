@@ -31,8 +31,6 @@ public class IntervalTimer : IDisposable, IAsyncDisposable
         else
             InitIntervalsStraight(workout);
 
-        Console.WriteLine(workout.CooldownTime);
-        Console.WriteLine(workout.CooldownTime.TotalSecondsInt());
         _intervals.AddLast(new Cooldown(workout.CooldownTime.TotalSecondsInt()));
         _intervals.AddLast(new Done());
         CurrentIntervalNode = _intervals.First!;

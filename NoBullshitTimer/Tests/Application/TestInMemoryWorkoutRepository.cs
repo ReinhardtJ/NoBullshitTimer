@@ -48,4 +48,20 @@ public class TestInMemoryWorkoutRepository
     {
         Assert.Catch<WorkoutNotFoundException>(() => _repository.Get("SomeNonExistingName"));
     }
+
+    [Test]
+    public void Test_Delete()
+    {
+        var someWorkout = Fixtures.SomeWorkout();
+        _repository.Add(someWorkout);
+        _repository.Delete(someWorkout.Name);
+        Assert.That(_repository.GetAllWorkouts().Count, Is.EqualTo(0));
+    }
+
+    [Test]
+    public void Test_Delete_DoesNothingIfWorkoutDoesNotExist()
+    {
+        _repository.Delete("SomeWorkout");
+        Assert.That(_repository.GetAllWorkouts().Count, Is.EqualTo(0));
+    }
 }

@@ -94,8 +94,11 @@
 @inject WorkoutMapper WorkoutMapper
 
 @code {
+    [Parameter] public EventCallback CloseWorkoutEditor { get; set; }
+
     private WorkoutForm _workoutForm = null!;
     private Workout WorkoutInEditing => WorkoutMapper.ToDomain(_workoutForm);
+    private string _originalName = "";
 
 
     protected override void OnInitialized()
@@ -116,20 +119,23 @@
 
     private void SaveChanges()
     {
-        WorkoutStore.SelectedWorkout = WorkoutInEditing;
-
-
+        var originalName = _originalName;
+        var workout = WorkoutInEditing;
+        var newName = workout.Name;
+        WorkoutRepository.Delete(originalName);
+        WorkoutRepository.Add(workout);
+        WorkoutStore.SelectedWorkout = workout;
         _workoutForm.Dirty = false;
+        _originalName = newName;
+        CloseWorkoutEditor.InvokeAsync();
         StateHasChanged();
-
     }
-
 
     private void ApplyWorkoutToForm(Workout workout)
     {
         _workoutForm = WorkoutMapper.ToForm(workout);
         _workoutForm.OnFormChanged += StateHasChanged;
+        _originalName = _workoutForm.Name;
         StateHasChanged();
     }
-
 }
