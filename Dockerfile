@@ -1,21 +1,27 @@
+# Use the .NET SDK as the build environment
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 
-# Copy everything at once
+# Install Node.js and npm
+RUN apt-get update && \
+    apt-get install -y curl && \
+    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs
+
 COPY . .
 
-# Restore as distinct layers
+# build Tailwind CSS
+WORKDIR /src/NoBullshitTimer/Client
+RUN npm install
+RUN npx tailwindcss -i ./Styles/app.css -o ./wwwroot/css/app.css --minify
+
+
+WORKDIR /src
 RUN dotnet restore NoBullshitTimer.sln
-
-# Build
 RUN dotnet build -c Release -o /app/build
-
-# Publish
-FROM build AS publish
 RUN dotnet publish -c Release -o /app/publish
 
-# Final stage/image
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "NoBullshitTimer.Server.dll"]

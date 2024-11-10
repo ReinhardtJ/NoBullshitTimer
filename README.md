@@ -46,18 +46,37 @@ To host the application for development, simply open the solution in Visual
 Studio or Rider and use the `NoBullshitTimer.Server: http` run configuration
 which will start a local development server. 
 
-Styling relies on the Tailwind.css framework, which has an own CLI that needs
-to be run to enable hot reloading: 
+## CSS Styles
+
+Styling relies on the Tailwind.css framework. There are 2 different css base-
+files, depending on the environment:
+
+dev: `Styles/app.dev.css`
+prod: `Styles/app.css`
+
+which reference 2 different tailwind config files:
+
+dev: `tailwind.config.dev.css`
+prod: `tailwind.config.css`
+
+To use them, use 
 
 ```bash
 cd Client
-npx tailwindcss -i ./Styles/app.css -o ./wwwroot/css/app.css --watch
+npx tailwindcss -i ./Styles/app.dev.css -o ./wwwroot/css/app.css
 ```
+
+or
 
 to minify the stylesheets:
 ```bash
+cd Client
 npx tailwindcss -i ./Styles/app.css -o ./wwwroot/css/app.css --minify
 ```
+
+respectively.
+
+## Docker
 
 To run the timer in docker, refer to the https://github.com/ReinhardtJ/reinhardt.ai
 repository.
