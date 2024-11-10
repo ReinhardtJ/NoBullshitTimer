@@ -5,6 +5,11 @@ module.exports = {
   theme: {
     extend: {}
   },
-  plugins: []
+  plugins: [],
+  safelist: [
+    {
+      pattern: /^(w|h)-./,
+    }
+  ]
 }
 
