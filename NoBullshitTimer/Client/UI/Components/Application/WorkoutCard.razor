@@ -50,7 +50,7 @@
 @inject IWorkoutStore WorkoutStore
 
 @code {
-    [Parameter] public Workout Workout { get; set; }
+    [Parameter] public Workout Workout { get; set; } = null!;
 
     [Parameter] public EventCallback OnEditClick { get; set; }
 

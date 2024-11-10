@@ -38,4 +38,9 @@ public class InMemoryWorkoutRepository : IWorkoutRepository
     {
         return _savedWorkouts.Select(kv => kv.Value).ToList();
     }
+
+    public void Update(string name, Workout workout)
+    {
+        throw new NotImplementedException();
+    }
 }

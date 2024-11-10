@@ -33,14 +33,14 @@
 @inject IWorkoutStore WorkoutStore
 
 @code {
-    AudioPlayer _audioPlayer;
+    AudioPlayer _audioPlayer = null!;
     private void OnTimerStateChanged()
     {
         _audioPlayer?.PlaySoundIfNecessary(Timer, WorkoutStore);
         InvokeAsync(StateHasChanged);
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         Timer.OnTimerStateChanged += OnTimerStateChanged;
         _audioPlayer = new AudioPlayer(

@@ -16,7 +16,7 @@
     [Parameter] public List<DropdownItem<TValue>> Items { get; set; } = new();
     [Parameter] public EventCallback<DropdownItem<TValue>> SelectedItemChanged { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         if (Items.Count != 0)
             SelectedItem = Items[0];

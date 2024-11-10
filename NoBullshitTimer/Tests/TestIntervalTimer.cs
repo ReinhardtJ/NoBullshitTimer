@@ -92,11 +92,11 @@ public class TestIntervalTimer
         _intervalTimer.GoToNextInterval();
         Assert.That(_intervalTimer.CurrentInterval is Prepare);
         Assert.That(_intervalTimer.NextInterval is Work);
-        Assert.That(_intervalTimer.NextInterval.Name, Is.EqualTo("push ups"));
+        Assert.That(_intervalTimer.NextInterval?.Name, Is.EqualTo("push ups"));
 
         _intervalTimer.GoToNextInterval();
         Assert.That(_intervalTimer.CurrentInterval is Work);
-        Assert.That(_intervalTimer.CurrentInterval.Name, Is.EqualTo("push ups"));
+        Assert.That(_intervalTimer.CurrentInterval?.Name, Is.EqualTo("push ups"));
         Assert.That(_intervalTimer.NextInterval is Rest);
 
         _intervalTimer.GoToNextInterval();
@@ -207,7 +207,7 @@ public class TestIntervalTimer
         var intervalTimer = new IntervalTimer(state); // ready
         intervalTimer.GoToNextInterval(); // prepare
         intervalTimer.GoToNextInterval(); // ex 1 set 1
-        Assert.That(intervalTimer.CurrentInterval.Name, Is.EqualTo("push ups"));
+        Assert.That(intervalTimer.CurrentInterval?.Name, Is.EqualTo("push ups"));
         intervalTimer.GoToNextInterval(); // rest
         intervalTimer.GoToNextInterval(); // ex 2 set 1
         Assert.That(intervalTimer.CurrentInterval.Name, Is.EqualTo("pull ups"));

@@ -4,10 +4,10 @@ namespace NoBullshitTimer.Client.Application;
 
 public class WorkoutStore : IWorkoutStore
 {
-    private Workout _selectedWorkout;
+    private Workout _selectedWorkout = null!;
     public event Action<Workout> OnWorkoutChanged = _ => { };
 
-    private IList<Workout> _allWorkouts;
+    private IList<Workout> _allWorkouts = new List<Workout>();
 
 
     public WorkoutStore(IWorkoutRepository workoutRepository)

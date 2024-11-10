@@ -41,5 +41,12 @@ public interface IWorkoutRepository
     /// </exception>
     Workout Get(string name);
 
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="workout"></param>
+    void Update(string name, Workout workout);
+
     IList<Workout> GetAllWorkouts();
 }

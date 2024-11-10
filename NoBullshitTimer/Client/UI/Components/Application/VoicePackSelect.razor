@@ -20,7 +20,7 @@
         new DropdownItem<string>("Sven", "sven")
     };
 
-    private async Task OnVoicePackChanged(DropdownItem<string> newValue)
+    private void OnVoicePackChanged(DropdownItem<string> newValue)
     {
         if (AudioPlayer != null)
             AudioPlayer.VoicePack = newValue.Value;

@@ -1,36 +1,32 @@
 @using NoBullshitTimer.Client.Components
 @if (IsVisible)
 {
-<div class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center">
-    <div class="dark:bg-zinc-900 rounded-lg shadow-lg min-w-96 p-6" @onclick:stopPropagation>
-        <div class="flex flex-row justify-between mb-4">
-            <h2 class="text-xl font-semibold">@Title</h2>
-            <button class="" @onclick="CloseModal">
-                <Icon Type="IconType.X"></Icon>
-            </button>
-        </div>
-        <div>
-            @ChildContent
+    <div class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+        <div class="dark:bg-zinc-900 rounded-lg shadow-lg min-w-96 p-6" @onclick:stopPropagation>
+            <div class="flex flex-row justify-between mb-4">
+                <h2 class="text-xl font-semibold">@Title</h2>
+                <button class="" @onclick="CloseModal">
+                    <Icon Type="IconType.X"></Icon>
+                </button>
+            </div>
+            <div>
+                @ChildContent
+            </div>
         </div>
     </div>
-</div>
 }
 
 @code {
-[Parameter]
-public bool IsVisible { get; set; }
+    [Parameter] public bool IsVisible { get; set; }
 
-[Parameter]
-public EventCallback<bool> IsVisibleChanged { get; set; }
+    [Parameter] public EventCallback<bool> IsVisibleChanged { get; set; }
 
-[Parameter]
-public string Title { get; set; } = "Modal Title";
+    [Parameter] public string Title { get; set; } = "Modal Title";
 
-[Parameter]
-public RenderFragment ChildContent { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
 
-private Task CloseModal()
-{
-return IsVisibleChanged.InvokeAsync(false);
-}
+    private Task CloseModal()
+    {
+        return IsVisibleChanged.InvokeAsync(false);
+    }
 }

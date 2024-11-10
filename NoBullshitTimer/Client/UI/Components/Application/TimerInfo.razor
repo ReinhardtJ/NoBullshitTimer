@@ -98,7 +98,7 @@
         }
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         Timer.OnTimerStateChanged += StateHasChanged;
     }
