@@ -87,5 +87,15 @@ public static class WorkoutPresets
             false
         );
     }
+
+    public static Dictionary<string, Workout> DefaultPresets()
+    {
+        return new Dictionary<string, Workout>
+        {
+            { HIITPreset().Name, HIITPreset() },
+            { TabataPreset().Name, TabataPreset() },
+            { BoxingPreset().Name, BoxingPreset() }
+        };
+    }
 }
 

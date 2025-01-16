@@ -4,21 +4,16 @@ namespace NoBullshitTimer.Client.Application;
 
 public class InMemoryWorkoutRepository : IWorkoutRepository
 {
-    private readonly Dictionary<string, Workout> _savedWorkouts = new();
+    private readonly IDictionary<string, Workout> _savedWorkouts;
 
-    public InMemoryWorkoutRepository()
+    public InMemoryWorkoutRepository(IDictionary<string, Workout>? initialState = null)
     {
-        var hiit = WorkoutPresets.HIITPreset();
-        var tabata = WorkoutPresets.TabataPreset();
-        var boxing = WorkoutPresets.BoxingPreset();
-        _savedWorkouts.Add(hiit.Name, hiit);
-        _savedWorkouts.Add(tabata.Name, tabata);
-        _savedWorkouts.Add(boxing.Name, boxing);
+        _savedWorkouts = initialState ?? WorkoutPresets.DefaultPresets();
     }
 
-    public event Action OnRepositoryChanged = () => {};
+    public event Func<Task> OnRepositoryChanged = () => Task.CompletedTask;
 
-    public void Add(Workout workout)
+    public Task Add(Workout workout)
     {
         var result = _savedWorkouts.TryAdd(workout.Name, workout);
         if (!result)
@@ -27,25 +22,27 @@ public class InMemoryWorkoutRepository : IWorkoutRepository
                 $"workout with that name already exists"
             );
         OnRepositoryChanged.Invoke();
+        return Task.CompletedTask;
     }
 
-    public Workout Get(string name)
+    public Task<Workout> Get(string name)
     {
         var result = _savedWorkouts.TryGetValue(name, out var workout);
         if (!result || workout == null)
             throw new WorkoutNotFoundException($"Workout with name '{name}' not in store");
-        return workout;
+        return Task.FromResult(workout);
     }
 
-    public IList<Workout> GetAllWorkouts()
+    public Task<IList<Workout>> GetAllWorkouts()
     {
-        return _savedWorkouts.Select(kv => kv.Value).ToList();
+        return Task.FromResult<IList<Workout>>(_savedWorkouts.Select(kv => kv.Value).ToList());
     }
 
 
-    public void Delete(string name)
+    public Task Delete(string name)
     {
         _savedWorkouts.Remove(name);
         OnRepositoryChanged.Invoke();
+        return Task.CompletedTask;
     }
 }

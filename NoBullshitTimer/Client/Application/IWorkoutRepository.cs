@@ -22,7 +22,7 @@ public interface IWorkoutRepository
     /// Invoked whenever the repository changes due to a workout being added,
     /// updated or deleted
     /// </summary>
-    event Action OnRepositoryChanged;
+    event Func<Task> OnRepositoryChanged;
 
     /// <summary>
     /// Adds a workout to this store under a specific name. There can't be more than one
@@ -34,7 +34,7 @@ public interface IWorkoutRepository
     /// When attempting to add a workout with a name that already exists
     /// in this store
     /// </exception>
-    void Add(Workout workout);
+    Task Add(Workout workout);
 
     /// <summary>
     /// Retrieves a workout from this repository using its name.
@@ -45,14 +45,14 @@ public interface IWorkoutRepository
     /// When attempting to retrieve a workout using a name that doesn't exist
     /// in this store
     /// </exception>
-    Workout Get(string name);
+    Task<Workout> Get(string name);
 
     /// <summary>
     /// Deletes a workout from this repository.
     /// </summary>
     /// <param name="name"></param>
-    void Delete(string name);
+    Task Delete(string name);
 
 
-    IList<Workout> GetAllWorkouts();
+    Task<IList<Workout>> GetAllWorkouts();
 }

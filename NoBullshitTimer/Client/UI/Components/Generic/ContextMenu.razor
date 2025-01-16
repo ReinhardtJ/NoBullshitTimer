@@ -13,10 +13,13 @@
 {
     <div @onclick:stopPropagation="@true">
         <div class="fixed z-40 inset-0" @onclick="Close"></div>
-    </div>
-    <div @ref="_menuRef"
-         class="fixed z-50 bg-zinc-800 rounded-md shadow-lg border border-zinc-700 p-2 min-w-[200px]">
-        @ChildContent
+        <div
+            @ref="_menuRef"
+            @onclick="Close"
+            class="fixed z-50 bg-zinc-800 rounded-md shadow-lg border border-zinc-700 p-2 min-w-[200px]"
+        >
+            @ChildContent
+        </div>
     </div>
 }
 
@@ -78,3 +81,4 @@
     }
 
 }
+

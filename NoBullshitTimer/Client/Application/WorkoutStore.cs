@@ -7,6 +7,7 @@ public class WorkoutStore : IWorkoutStore
 {
     private readonly IWorkoutRepository _workoutRepository;
     private Workout _selectedWorkout = null!;
+
     public event Action OnWorkoutStoreStateChanged = () => { };
 
     private IList<Workout> _allWorkouts = new List<Workout>();
@@ -15,17 +16,24 @@ public class WorkoutStore : IWorkoutStore
     public WorkoutStore(IWorkoutRepository workoutRepository)
     {
         _workoutRepository = workoutRepository;
+
+    }
+
+    public static async Task<WorkoutStore> Init(IWorkoutRepository workoutRepository)
+    {
+        var workoutStore = new WorkoutStore(workoutRepository);
         try
         {
-            LoadWorkoutsFromFromRepository();
-            SelectedWorkout = workoutRepository.GetAllWorkouts().First();
+            await workoutStore.LoadWorkoutsFromFromRepository();
+            workoutStore.SelectedWorkout = (await workoutRepository.GetAllWorkouts()).First();
         }
         catch (InvalidOperationException)
         {
-            SelectedWorkout = WorkoutPresets.HIITPreset();
+            workoutStore.SelectedWorkout = WorkoutPresets.HIITPreset();
         }
 
-        _workoutRepository.OnRepositoryChanged += LoadWorkoutsFromFromRepository;
+        workoutStore._workoutRepository.OnRepositoryChanged += workoutStore.LoadWorkoutsFromFromRepository;
+        return workoutStore;
     }
 
     public Workout SelectedWorkout
@@ -38,9 +46,9 @@ public class WorkoutStore : IWorkoutStore
         }
     }
 
-    private void LoadWorkoutsFromFromRepository()
+    private async Task LoadWorkoutsFromFromRepository()
     {
-        _allWorkouts = _workoutRepository.GetAllWorkouts();
+        _allWorkouts = await _workoutRepository.GetAllWorkouts();
     }
 
     public IList<Workout> AllWorkouts => _allWorkouts;

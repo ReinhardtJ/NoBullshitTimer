@@ -35,11 +35,11 @@ public class TestInMemoryWorkoutRepository
     }
 
     [Test]
-    public void Test_Get()
+    public async Task Test_Get()
     {
         var workout = Fixtures.SomeWorkout();
-        _repository.Add(workout);
-        var getResult = _repository.Get(workout.Name);
+        await _repository.Add(workout);
+        var getResult = await _repository.Get(workout.Name);
         Assert.That(getResult, Is.EqualTo(workout));
     }
 
@@ -50,18 +50,18 @@ public class TestInMemoryWorkoutRepository
     }
 
     [Test]
-    public void Test_Delete()
+    public async Task Test_Delete()
     {
         var someWorkout = Fixtures.SomeWorkout();
-        _repository.Add(someWorkout);
-        _repository.Delete(someWorkout.Name);
-        Assert.That(_repository.GetAllWorkouts().Count, Is.EqualTo(0));
+        await _repository.Add(someWorkout);
+        await _repository.Delete(someWorkout.Name);
+        Assert.That(await _repository.GetAllWorkouts(), Is.Empty);
     }
 
     [Test]
-    public void Test_Delete_DoesNothingIfWorkoutDoesNotExist()
+    public async Task Test_Delete_DoesNothingIfWorkoutDoesNotExist()
     {
-        _repository.Delete("SomeWorkout");
-        Assert.That(_repository.GetAllWorkouts().Count, Is.EqualTo(0));
+        await _repository.Delete("SomeWorkout");
+        Assert.That(await _repository.GetAllWorkouts(), Is.Empty);
     }
 }
