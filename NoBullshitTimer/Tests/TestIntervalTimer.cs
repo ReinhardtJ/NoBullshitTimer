@@ -10,14 +10,12 @@ public class TestIntervalTimer
     private IntervalTimer _intervalTimer;
 
     [SetUp]
-    public void Setup()
+    public async Task Setup()
     {
         var workout = Fixtures.SomeWorkout();
-        var workoutState = new WorkoutStore(new InMemoryWorkoutRepository())
-        {
-            SelectedWorkout = workout
-        };
-        _intervalTimer = new IntervalTimer(workoutState);
+        var workoutStore = await WorkoutStore.Create(new InMemoryWorkoutRepository());
+        workoutStore.SelectedWorkout = workout;
+        _intervalTimer = new IntervalTimer(workoutStore);
     }
 
 
@@ -173,21 +171,20 @@ public class TestIntervalTimer
     }
 
     [Test]
-    public void TestTimerSecondsLeft()
+    public async Task TestTimerSecondsLeft()
     {
-        var state = new WorkoutStore(new InMemoryWorkoutRepository())
-        {
-            SelectedWorkout = new Workout(
-                "SomeWorkout",
-                TimeSpan.FromSeconds(1),
-                TimeSpan.FromSeconds(3),
-                TimeSpan.FromSeconds(2),
-                TimeSpan.FromSeconds(1),
-                1,
-                new List<string> { "pull ups" },
-                false
-            )
-        };
+        var state = await WorkoutStore.Create(new InMemoryWorkoutRepository());
+        state.SelectedWorkout = new Workout(
+            "SomeWorkout",
+            TimeSpan.FromSeconds(1),
+            TimeSpan.FromSeconds(3),
+            TimeSpan.FromSeconds(2),
+            TimeSpan.FromSeconds(1),
+            1,
+            new List<string> { "pull ups" },
+            false
+        );
+
         var intervalTimer = new IntervalTimer(state);
         Assert.That(intervalTimer.CurrentInterval is Ready);
         intervalTimer.Tick();
@@ -199,11 +196,11 @@ public class TestIntervalTimer
     }
 
     [Test]
-    public void TestCircularSets()
+    public async Task TestCircularSets()
     {
-        var workout = Fixtures.SomeWorkout();
-        workout.CircularSets = true;
-        var state = new WorkoutStore(new InMemoryWorkoutRepository()) { SelectedWorkout = workout };
+        var workout = Fixtures.SomeWorkout(circularSets: true);
+        var state = await WorkoutStore.Create(new InMemoryWorkoutRepository());
+        state.SelectedWorkout = workout;
         var intervalTimer = new IntervalTimer(state); // ready
         intervalTimer.GoToNextInterval(); // prepare
         intervalTimer.GoToNextInterval(); // ex 1 set 1
@@ -219,7 +216,6 @@ public class TestIntervalTimer
         Assert.That(intervalTimer.CurrentInterval.Name, Is.EqualTo("pull ups"));
         intervalTimer.GoToNextInterval(); // cooldown
         Assert.That(intervalTimer.CurrentInterval is Cooldown);
-
     }
 
     private void Tick(IntervalTimer timer, int times)

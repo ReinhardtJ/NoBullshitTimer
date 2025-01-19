@@ -13,27 +13,26 @@ public class WorkoutStore : IWorkoutStore
     private IList<Workout> _allWorkouts = new List<Workout>();
 
 
-    public WorkoutStore(IWorkoutRepository workoutRepository)
+    private WorkoutStore(IWorkoutRepository workoutRepository)
     {
         _workoutRepository = workoutRepository;
-
     }
 
-    public static async Task<WorkoutStore> Init(IWorkoutRepository workoutRepository)
+    public static async Task<WorkoutStore> Create(IWorkoutRepository workoutRepository)
     {
-        var workoutStore = new WorkoutStore(workoutRepository);
+        var self = new WorkoutStore(workoutRepository);
         try
         {
-            await workoutStore.LoadWorkoutsFromFromRepository();
-            workoutStore.SelectedWorkout = (await workoutRepository.GetAllWorkouts()).First();
+            await self.LoadWorkoutsFromFromRepository();
+            self.SelectedWorkout = (await workoutRepository.GetAllWorkouts()).First();
         }
         catch (InvalidOperationException)
         {
-            workoutStore.SelectedWorkout = WorkoutPresets.HIITPreset();
+            self.SelectedWorkout = WorkoutPresets.HIITPreset();
         }
 
-        workoutStore._workoutRepository.OnRepositoryChanged += workoutStore.LoadWorkoutsFromFromRepository;
-        return workoutStore;
+        self._workoutRepository.OnRepositoryChanged += self.LoadWorkoutsFromFromRepository;
+        return self;
     }
 
     public Workout SelectedWorkout

@@ -19,12 +19,15 @@ builder.Services.AddScoped(
             .CreateClient("NoBullshitTimer.ServerAPI")
 );
 
-
-builder.Services.AddSingleton<LocalStorageService>(
-    provider => LocalStorageService.FromState(provider.GetRequiredService<IJSRuntime>()).GetAwaiter().GetResult()
-);
-builder.Services.AddSingleton<WorkoutMapper>();
-builder.Services.AddSingleton<IWorkoutStore, WorkoutStore>();
+var serviceProvider = builder.Services.BuildServiceProvider();
+var jsRuntime = serviceProvider.GetRequiredService<IJSRuntime>();
+var storageService = await LocalStorageService.Create(jsRuntime);
+builder.Services.AddSingleton<ILocalStorageService>(storageService);
 builder.Services.AddSingleton<IWorkoutRepository, LocalStorageWorkoutRepository>();
+serviceProvider = builder.Services.BuildServiceProvider();
+var workoutRepository = serviceProvider.GetRequiredService<IWorkoutRepository>();
+var workoutStore = await WorkoutStore.Create(workoutRepository);
+builder.Services.AddSingleton<IWorkoutStore>(workoutStore);
+builder.Services.AddSingleton<WorkoutMapper>();
 builder.Services.AddSingleton<IntervalTimer>();
 await builder.Build().RunAsync();

@@ -40,7 +40,7 @@
         InvokeAsync(StateHasChanged);
     }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         Timer.OnTimerStateChanged += OnTimerStateChanged;
         _audioPlayer = new AudioPlayer(

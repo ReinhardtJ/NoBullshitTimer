@@ -7,8 +7,5 @@ window.localStorageInterop = {
     },
     removeItem: function (key) {
         localStorage.removeItem(key);
-    },
-    getLocalStorage: function () {
-        return localStorage
     }
 }

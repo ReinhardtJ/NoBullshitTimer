@@ -53,6 +53,5 @@ public interface IWorkoutRepository
     /// <param name="name"></param>
     Task Delete(string name);
 
-
     Task<IList<Workout>> GetAllWorkouts();
 }

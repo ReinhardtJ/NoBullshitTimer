@@ -13,7 +13,7 @@ public class InMemoryWorkoutRepository : IWorkoutRepository
 
     public event Func<Task> OnRepositoryChanged = () => Task.CompletedTask;
 
-    public Task Add(Workout workout)
+    public async Task Add(Workout workout)
     {
         var result = _savedWorkouts.TryAdd(workout.Name, workout);
         if (!result)
@@ -21,8 +21,7 @@ public class InMemoryWorkoutRepository : IWorkoutRepository
                 $"Can't add workout '{workout.Name}' to the store because a " +
                 $"workout with that name already exists"
             );
-        OnRepositoryChanged.Invoke();
-        return Task.CompletedTask;
+        await OnRepositoryChanged.Invoke();
     }
 
     public Task<Workout> Get(string name)

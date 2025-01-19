@@ -1,37 +1,15 @@
 namespace NoBullshitTimer.Client.Domain;
 
-public class Workout
+public record Workout(
+    string Name,
+    TimeSpan PrepareTime,
+    TimeSpan ExerciseTime,
+    TimeSpan RestTime,
+    TimeSpan CooldownTime,
+    int SetsPerExercise,
+    List<string> Exercises,
+    bool CircularSets)
 {
-    public string Name;
-    public TimeSpan PrepareTime;
-    public TimeSpan ExerciseTime;
-    public TimeSpan RestTime;
-    public TimeSpan CooldownTime;
-    public int SetsPerExercise;
-    public List<string> Exercises;
-    public bool CircularSets;
-
-    public Workout(
-        string name,
-        TimeSpan prepareTime,
-        TimeSpan exerciseTime,
-        TimeSpan restTime,
-        TimeSpan cooldownTime,
-        int setsPerExercise,
-        List<string> exercises,
-        bool circularSets
-    )
-    {
-        Name = name;
-        PrepareTime = prepareTime;
-        ExerciseTime = exerciseTime;
-        RestTime = restTime;
-        CooldownTime = cooldownTime;
-        SetsPerExercise = setsPerExercise;
-        Exercises = exercises;
-        CircularSets = circularSets;
-    }
-
     public bool IsLastExercise(string exercise)
     {
         return exercise == Exercises[^1];
@@ -40,6 +18,36 @@ public class Workout
     public bool IsLastSet(int set)
     {
         return set == SetsPerExercise;
+    }
+
+    public virtual bool Equals(Workout? other)
+    {
+        if (other is null) return false;
+        return Name == other.Name &&
+               PrepareTime == other.PrepareTime &&
+               ExerciseTime == other.ExerciseTime &&
+               RestTime == other.RestTime &&
+               CooldownTime == other.CooldownTime &&
+               SetsPerExercise == other.SetsPerExercise &&
+               CircularSets == other.CircularSets &&
+               Exercises.SequenceEqual(other.Exercises);
+    }
+
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        hash.Add(Name);
+        hash.Add(PrepareTime);
+        hash.Add(ExerciseTime);
+        hash.Add(RestTime);
+        hash.Add(CooldownTime);
+        hash.Add(SetsPerExercise);
+        hash.Add(CircularSets);
+        foreach (var exercise in Exercises)
+        {
+            hash.Add(exercise);
+        }
+        return hash.ToHashCode();
     }
 }
 
@@ -98,4 +106,3 @@ public static class WorkoutPresets
         };
     }
 }
-

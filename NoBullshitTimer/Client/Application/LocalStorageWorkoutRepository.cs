@@ -6,11 +6,11 @@ namespace NoBullshitTimer.Client.Application;
 
 public class LocalStorageWorkoutRepository : IWorkoutRepository
 {
-    private readonly LocalStorageService _localStorageService;
+    private readonly ILocalStorageService _localStorageService;
 
     public event Func<Task> OnRepositoryChanged = () => Task.CompletedTask;
 
-    public LocalStorageWorkoutRepository(LocalStorageService localStorageService)
+    public LocalStorageWorkoutRepository(ILocalStorageService localStorageService)
     {
         _localStorageService = localStorageService;
     }
@@ -18,13 +18,24 @@ public class LocalStorageWorkoutRepository : IWorkoutRepository
     public async Task Add(Workout workout)
     {
         var workouts = await GetWorkouts();
-        workouts[workout.Name] = workout;
+        var addSuccessful = workouts.TryAdd(workout.Name, workout);
+        if (!addSuccessful)
+            throw new AddingWorkoutException(
+                $"Can't add workout '{workout.Name}' to the store because a " +
+                $"workout with that name already exists"
+            );
         await UpdateLocalStorage(workouts);
+        await OnRepositoryChanged.Invoke();
     }
 
     public async Task<Workout> Get(string name)
     {
-        return (await GetWorkouts())[name];
+        var workouts = await GetWorkouts();
+        var getSuccessful = workouts.TryGetValue(name, out Workout? result);
+        if (!getSuccessful || result == null)
+            throw new WorkoutNotFoundException($"Workout with name '{name}' not found");
+
+        return result;
     }
 
     public async Task Delete(string name)
@@ -48,6 +59,7 @@ public class LocalStorageWorkoutRepository : IWorkoutRepository
 
     private async Task<Dictionary<string, Workout>> GetWorkouts()
     {
-        return await _localStorageService.GetItemAsync<Dictionary<string, Workout>>("workouts");
+        var result = await _localStorageService.GetItemAsync<Dictionary<string, Workout>>("workouts");
+        return result ?? new Dictionary<string, Workout>();
     }
 }
