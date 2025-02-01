@@ -3,7 +3,7 @@ window.localStorageInterop = {
         localStorage.setItem(key, value);
     },
     getItem: function (key) {
-        localStorage.getItem(key);
+        return localStorage.getItem(key);
     },
     removeItem: function (key) {
         localStorage.removeItem(key);

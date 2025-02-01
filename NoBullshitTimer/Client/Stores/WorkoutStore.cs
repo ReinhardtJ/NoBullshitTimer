@@ -1,7 +1,8 @@
+using NoBullshitTimer.Client.Application;
 using NoBullshitTimer.Client.Domain;
 using NoBullshitTimer.Client.Framework;
 
-namespace NoBullshitTimer.Client.Application;
+namespace NoBullshitTimer.Client.Stores;
 
 public class WorkoutStore : IWorkoutStore
 {

@@ -1,15 +1,45 @@
+using System.Text.Json.Serialization;
+using NoBullshitTimer.Client.Framework;
+
 namespace NoBullshitTimer.Client.Domain;
 
-public record Workout(
-    string Name,
-    TimeSpan PrepareTime,
-    TimeSpan ExerciseTime,
-    TimeSpan RestTime,
-    TimeSpan CooldownTime,
-    int SetsPerExercise,
-    List<string> Exercises,
-    bool CircularSets)
+public class Workout : IEquatable<Workout>
 {
+    public string Name { get; init; }
+
+    [JsonConverter(typeof(JsonTimeSpanConverter))]
+    public TimeSpan PrepareTime { get; init; }
+    [JsonConverter(typeof(JsonTimeSpanConverter))]
+    public TimeSpan ExerciseTime { get; init; }
+    [JsonConverter(typeof(JsonTimeSpanConverter))]
+    public TimeSpan RestTime { get; init; }
+    [JsonConverter(typeof(JsonTimeSpanConverter))]
+    public TimeSpan CooldownTime { get; init; }
+
+    public int SetsPerExercise { get; init; }
+    public List<string> Exercises { get; init; }
+    public bool CircularSets { get; init; }
+
+    public Workout(
+        string name,
+        TimeSpan prepareTime,
+        TimeSpan exerciseTime,
+        TimeSpan restTime,
+        TimeSpan cooldownTime,
+        int setsPerExercise,
+        List<string> exercises,
+        bool circularSets)
+    {
+        Name = name;
+        PrepareTime = prepareTime;
+        ExerciseTime = exerciseTime;
+        RestTime = restTime;
+        CooldownTime = cooldownTime;
+        SetsPerExercise = setsPerExercise;
+        Exercises = exercises;
+        CircularSets = circularSets;
+    }
+
     public bool IsLastExercise(string exercise)
     {
         return exercise == Exercises[^1];
@@ -20,34 +50,36 @@ public record Workout(
         return set == SetsPerExercise;
     }
 
-    public virtual bool Equals(Workout? other)
+    public override bool Equals(object? obj)
     {
-        if (other is null) return false;
-        return Name == other.Name &&
-               PrepareTime == other.PrepareTime &&
-               ExerciseTime == other.ExerciseTime &&
-               RestTime == other.RestTime &&
-               CooldownTime == other.CooldownTime &&
-               SetsPerExercise == other.SetsPerExercise &&
-               CircularSets == other.CircularSets &&
-               Exercises.SequenceEqual(other.Exercises);
+        if (obj is null)
+            return false;
+        if (ReferenceEquals(this, obj))
+            return true;
+        if (obj.GetType() != GetType())
+            return false;
+        return Equals((Workout)obj);
+    }
+
+    public bool Equals(Workout? other)
+    {
+        if (other is null)
+            return false;
+        return Name == other.Name
+               && PrepareTime.Equals(other.PrepareTime)
+               && ExerciseTime.Equals(other.ExerciseTime)
+               && RestTime.Equals(other.RestTime)
+               && CooldownTime.Equals(other.CooldownTime)
+               && SetsPerExercise == other.SetsPerExercise
+               && Exercises.SequenceEqual(other.Exercises)
+               && CircularSets == other.CircularSets;
     }
 
     public override int GetHashCode()
     {
-        var hash = new HashCode();
-        hash.Add(Name);
-        hash.Add(PrepareTime);
-        hash.Add(ExerciseTime);
-        hash.Add(RestTime);
-        hash.Add(CooldownTime);
-        hash.Add(SetsPerExercise);
-        hash.Add(CircularSets);
-        foreach (var exercise in Exercises)
-        {
-            hash.Add(exercise);
-        }
-        return hash.ToHashCode();
+        return HashCode.Combine(
+            Name, PrepareTime, ExerciseTime, RestTime, CooldownTime, SetsPerExercise, Exercises, CircularSets
+        );
     }
 }
 

@@ -1,5 +1,6 @@
 using NoBullshitTimer.Client.Application;
 using NoBullshitTimer.Client.Domain;
+using NoBullshitTimer.Client.Stores;
 using NoBullshitTimer.Tests.Domain;
 using NUnit.Framework;
 

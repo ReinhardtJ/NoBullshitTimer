@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.JSInterop;
 using NoBullshitTimer.Client.Domain;
 
@@ -44,14 +45,15 @@ public class LocalStorageService : ILocalStorageService
     /// <returns>the item T or null if the item wasn't found in the local storage</returns>
     public async Task<T?> GetItemAsync<T>(string key)
     {
-        var serializedItem = await _jsRuntime.InvokeAsync<string?>("localStorageInterop.getItem", key);
+        var serializedItem = await _jsRuntime.InvokeAsync<JsonElement?>("localStorageInterop.getItem", key);
         if (serializedItem == null)
             return default;
-        return JsonSerializer.Deserialize<T>(serializedItem);
+
+        return JsonSerializer.Deserialize<T>(serializedItem.Value.GetRawText());
     }
 
     public async Task RemoveItemAsync(string key)
     {
         await _jsRuntime.InvokeVoidAsync("localStorageInterop.removeItem", key);
-    }   
+    }
 }

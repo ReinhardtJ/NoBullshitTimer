@@ -13,9 +13,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.13" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.13" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
-    <PackageReference Include="OneOf" Version="3.0.271" />
-    <PackageReference Include="OneOf.Monads" Version="1.21.0" />
-    <PackageReference Include="ValueOf" Version="2.0.31" />
   </ItemGroup>
 
   <ItemGroup>
