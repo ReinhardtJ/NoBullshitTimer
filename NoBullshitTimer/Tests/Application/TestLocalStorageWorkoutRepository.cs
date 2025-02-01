@@ -4,6 +4,7 @@ using NoBullshitTimer.Client.Domain;
 using NoBullshitTimer.Client.Framework;
 using NUnit.Framework;
 using System.Text.Json;
+using NoBullshitTimer.Client.Repositories;
 
 namespace NoBullshitTimer.Tests.Application;
 

@@ -46,10 +46,19 @@ public class LocalStorageService : ILocalStorageService
     public async Task<T?> GetItemAsync<T>(string key)
     {
         var serializedItem = await _jsRuntime.InvokeAsync<JsonElement?>("localStorageInterop.getItem", key);
+        return DeserializeJsonElementAsync<T>(serializedItem);
+    }
+
+    public static T? DeserializeJsonElementAsync<T>(JsonElement? serializedItem)
+    {
         if (serializedItem == null)
             return default;
 
-        return JsonSerializer.Deserialize<T>(serializedItem.Value.GetRawText());
+        var doubleEncodedJsonString = serializedItem.Value.GetRawText();
+        var jsonString = JsonSerializer.Deserialize<string>(doubleEncodedJsonString);
+        if (jsonString == null)
+            return default;
+        return JsonSerializer.Deserialize<T>(jsonString);
     }
 
     public async Task RemoveItemAsync(string key)

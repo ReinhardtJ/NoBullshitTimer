@@ -1,6 +1,6 @@
 using NoBullshitTimer.Client.Domain;
 
-namespace NoBullshitTimer.Client.Application;
+namespace NoBullshitTimer.Client.Repositories;
 
 public class InMemoryWorkoutRepository : IWorkoutRepository
 {

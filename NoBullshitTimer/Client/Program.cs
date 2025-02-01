@@ -5,6 +5,7 @@ using NoBullshitTimer.Client;
 using NoBullshitTimer.Client.Application;
 using NoBullshitTimer.Client.Domain;
 using NoBullshitTimer.Client.Framework;
+using NoBullshitTimer.Client.Repositories;
 using NoBullshitTimer.Client.Stores;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);

@@ -20,6 +20,13 @@ public class Workout : IEquatable<Workout>
     public List<string> Exercises { get; init; }
     public bool CircularSets { get; init; }
 
+    // parameterless ctor for json deserialization
+    public Workout()
+    {
+        Name = "";
+        Exercises = new List<string>();
+    }
+
     public Workout(
         string name,
         TimeSpan prepareTime,
