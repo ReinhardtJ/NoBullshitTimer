@@ -2,6 +2,7 @@ namespace NoBullshitTimer.Client.UI.Components.Application;
 
 public class WorkoutForm
 {
+    private Guid _id;
     private string _name;
     private string _prepareTime;
     private string _exerciseTime;
@@ -13,6 +14,8 @@ public class WorkoutForm
     private bool _dirty;
 
     public event Action OnFormChanged = () => { };
+
+    public Guid WorkoutId => _id;
 
     public string Name
     {
@@ -104,6 +107,7 @@ public class WorkoutForm
     }
 
     public WorkoutForm(
+        Guid id,
         string name,
         string prepareTime,
         string exerciseTime,
@@ -114,6 +118,7 @@ public class WorkoutForm
         bool circularSets
     )
     {
+        _id = id;
         _name = name;
         _prepareTime = prepareTime;
         _exerciseTime = exerciseTime;
@@ -172,20 +177,5 @@ public class WorkoutForm
     public bool IsLastExercise(ExerciseInput exerciseInput)
     {
         return exerciseInput == _exercises[^1];
-    }
-
-    public static WorkoutForm GetDefaultWorkoutForm()
-    {
-        return new WorkoutForm(
-            "Workout Name",
-            "00:10",
-            "00:40",
-            "00:20",
-            "01:00",
-            "3",
-            new(){ new ExerciseInput("Exercise 1") },
-            false
-        );
-
     }
 }

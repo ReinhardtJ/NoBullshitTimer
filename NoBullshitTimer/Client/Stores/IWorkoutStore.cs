@@ -1,6 +1,6 @@
 using NoBullshitTimer.Client.Domain;
 
-namespace NoBullshitTimer.Client.Application;
+namespace NoBullshitTimer.Client.Stores;
 
 public interface IWorkoutStore
 {
@@ -9,4 +9,5 @@ public interface IWorkoutStore
     public IList<Workout> AllWorkouts { get; }
     public void MoveWorkoutUp(Workout workout);
     public void MoveWorkoutDown(Workout workout);
+    public Task UpdateWorkout(Workout workout);
 }

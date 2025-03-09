@@ -14,30 +14,30 @@ public class TestLocalStorageWorkoutRepository : TestWorkoutRepository
     private IWorkoutRepository _repository;
     protected override IWorkoutRepository Repository => _repository;
 
-    private Mock<ILocalStorageService> _mockLocalStorageService;
-    private Dictionary<string, string> _localStorage;
+    private Mock<ILocalStorageService> _localStorageServiceMock;
+    private Dictionary<string, string> _localStorageMock;
 
     [SetUp]
     public void Init()
     {
-        _localStorage = new Dictionary<string, string>();
-        _mockLocalStorageService = new Mock<ILocalStorageService>();
+        _localStorageMock = new Dictionary<string, string>();
+        _localStorageServiceMock = new Mock<ILocalStorageService>();
 
         // Setup mock localStorage behavior
-        _mockLocalStorageService
-            .Setup(x => x.GetItemAsync<Dictionary<string, Workout>>("workouts"))
+        _localStorageServiceMock
+            .Setup(service => service.GetItemAsync<Dictionary<Guid, Workout>>("workouts"))
             .ReturnsAsync(() =>
             {
-                if (!_localStorage.ContainsKey("workouts"))
-                    return new Dictionary<string, Workout>();
-                return JsonSerializer.Deserialize<Dictionary<string, Workout>>(_localStorage["workouts"]);
+                if (!_localStorageMock.ContainsKey("workouts"))
+                    return new Dictionary<Guid, Workout>();
+                return JsonSerializer.Deserialize<Dictionary<Guid, Workout>>(_localStorageMock["workouts"]);
             });
 
-        _mockLocalStorageService
-            .Setup(x => x.SetItemAsync("workouts", It.IsAny<string>()))
-            .Callback<string, string>((key, value) => _localStorage[key] = value)
+        _localStorageServiceMock
+            .Setup(service => service.SetItemAsync("workouts", It.IsAny<string>()))
+            .Callback<string, string>((key, value) => _localStorageMock[key] = value)
             .Returns(Task.CompletedTask);
 
-        _repository = new LocalStorageWorkoutRepository(_mockLocalStorageService.Object);
+        _repository = new LocalStorageWorkoutRepository(_localStorageServiceMock.Object);
     }
 }

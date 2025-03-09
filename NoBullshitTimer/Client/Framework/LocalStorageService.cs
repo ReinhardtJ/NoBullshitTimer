@@ -45,8 +45,16 @@ public class LocalStorageService : ILocalStorageService
     /// <returns>the item T or null if the item wasn't found in the local storage</returns>
     public async Task<T?> GetItemAsync<T>(string key)
     {
-        var serializedItem = await _jsRuntime.InvokeAsync<JsonElement?>("localStorageInterop.getItem", key);
-        return DeserializeJsonElementAsync<T>(serializedItem);
+        try
+        {
+            // throws an error if the JS function returns null
+            var serializedItem = await _jsRuntime.InvokeAsync<JsonElement?>("localStorageInterop.getItem", key);
+            return DeserializeJsonElementAsync<T>(serializedItem);
+        }
+        catch (JSException)
+        {
+            return DeserializeJsonElementAsync<T>(null);
+        }
     }
 
     public static T? DeserializeJsonElementAsync<T>(JsonElement? serializedItem)

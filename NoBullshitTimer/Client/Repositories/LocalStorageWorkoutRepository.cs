@@ -19,7 +19,7 @@ public class LocalStorageWorkoutRepository : IWorkoutRepository
     public async Task Add(Workout workout)
     {
         var workouts = await GetWorkouts();
-        var addSuccessful = workouts.TryAdd(workout.Name, workout);
+        var addSuccessful = workouts.TryAdd(workout.Id, workout);
         if (!addSuccessful)
             throw new AddingWorkoutException(
                 $"Can't add workout '{workout.Name}' to the store because a " +
@@ -29,21 +29,22 @@ public class LocalStorageWorkoutRepository : IWorkoutRepository
         await OnRepositoryChanged.Invoke();
     }
 
-    public async Task<Workout> Get(string name)
+    public async Task<Workout> Get(Guid workoutId)
     {
         var workouts = await GetWorkouts();
-        var getSuccessful = workouts.TryGetValue(name, out Workout? result);
+        var getSuccessful = workouts.TryGetValue(workoutId, out Workout? result);
         if (!getSuccessful || result == null)
-            throw new WorkoutNotFoundException($"Workout with name '{name}' not found");
+            throw new WorkoutNotFoundException($"Workout with ID '{workoutId}' not found");
 
         return result;
     }
 
-    public async Task Delete(string name)
+    public async Task Delete(Guid workoutId)
     {
         var workouts = await GetWorkouts();
-        workouts.Remove(name);
-        await UpdateLocalStorage(workouts);
+        var workoutRemoveResult = workouts.Remove(workoutId);
+        if (workoutRemoveResult)
+            await UpdateLocalStorage(workouts);
     }
 
     public async Task<IList<Workout>> GetAllWorkouts()
@@ -51,16 +52,16 @@ public class LocalStorageWorkoutRepository : IWorkoutRepository
         return (await GetWorkouts()).Values.ToList();
     }
 
-    private async Task UpdateLocalStorage(Dictionary<string, Workout> workouts)
+    private async Task UpdateLocalStorage(Dictionary<Guid, Workout> workouts)
     {
         var serializedWorkouts = JsonSerializer.Serialize(workouts);
         await _localStorageService.SetItemAsync("workouts", serializedWorkouts);
         await OnRepositoryChanged.Invoke();
     }
 
-    private async Task<Dictionary<string, Workout>> GetWorkouts()
+    private async Task<Dictionary<Guid, Workout>> GetWorkouts()
     {
-        var result = await _localStorageService.GetItemAsync<Dictionary<string, Workout>>("workouts");
-        return result ?? new Dictionary<string, Workout>();
+        var result = await _localStorageService.GetItemAsync<Dictionary<Guid, Workout>>("workouts");
+        return result ?? new Dictionary<Guid, Workout>();
     }
 }

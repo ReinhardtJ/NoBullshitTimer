@@ -15,7 +15,8 @@ public class TestIntervalTimer
     public async Task Setup()
     {
         var workout = Fixtures.SomeWorkout();
-        var workoutStore = await WorkoutStore.Create(new InMemoryWorkoutRepository());
+        var workoutRepo = new InMemoryWorkoutRepository(new List<Workout> {workout});
+        var workoutStore = await WorkoutStore.Create(workoutRepo);
         workoutStore.SelectedWorkout = workout;
         _intervalTimer = new IntervalTimer(workoutStore);
     }
@@ -175,8 +176,8 @@ public class TestIntervalTimer
     [Test]
     public async Task TestTimerSecondsLeft()
     {
-        var state = await WorkoutStore.Create(new InMemoryWorkoutRepository());
-        state.SelectedWorkout = new Workout(
+        var workout =  new Workout(
+            Guid.NewGuid(),
             "SomeWorkout",
             TimeSpan.FromSeconds(1),
             TimeSpan.FromSeconds(3),
@@ -186,6 +187,8 @@ public class TestIntervalTimer
             new List<string> { "pull ups" },
             false
         );
+        var state = await WorkoutStore.Create(new InMemoryWorkoutRepository(new List<Workout> { workout }));
+        state.SelectedWorkout = workout;
 
         var intervalTimer = new IntervalTimer(state);
         Assert.That(intervalTimer.CurrentInterval is Ready);
@@ -201,7 +204,7 @@ public class TestIntervalTimer
     public async Task TestCircularSets()
     {
         var workout = Fixtures.SomeWorkout(circularSets: true);
-        var state = await WorkoutStore.Create(new InMemoryWorkoutRepository());
+        var state = await WorkoutStore.Create(new InMemoryWorkoutRepository(new List<Workout> {workout}));
         state.SelectedWorkout = workout;
         var intervalTimer = new IntervalTimer(state); // ready
         intervalTimer.GoToNextInterval(); // prepare

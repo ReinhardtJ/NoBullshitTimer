@@ -1,4 +1,3 @@
-using NoBullshitTimer.Client.Application;
 using NoBullshitTimer.Client.Domain;
 using NoBullshitTimer.Client.Framework;
 using NoBullshitTimer.Client.Repositories;
@@ -8,11 +7,12 @@ namespace NoBullshitTimer.Client.Stores;
 public class WorkoutStore : IWorkoutStore
 {
     private readonly IWorkoutRepository _workoutRepository;
-    private Workout _selectedWorkout = null!;
+    private int _selectedWorkoutIndex = -1;
+
+    public IList<Workout> AllWorkouts { get; private set; } = new List<Workout>();
 
     public event Action OnWorkoutStoreStateChanged = () => { };
 
-    private IList<Workout> _allWorkouts = new List<Workout>();
 
 
     private WorkoutStore(IWorkoutRepository workoutRepository)
@@ -39,20 +39,33 @@ public class WorkoutStore : IWorkoutStore
 
     public Workout SelectedWorkout
     {
-        get => _selectedWorkout;
+        get => AllWorkouts[_selectedWorkoutIndex];
         set
         {
-            _selectedWorkout = value;
+            var index = AllWorkouts.IndexOf(value);
+            if (index == -1)
+            {
+                throw new Exception(
+                    "The workout you tried to set as the current workout dosen't exist in the current " +
+                    "workout list");
+            }
+            _selectedWorkoutIndex = index;
             OnWorkoutStoreStateChanged.Invoke();
         }
     }
 
     private async Task LoadWorkoutsFromFromRepository()
     {
-        _allWorkouts = await _workoutRepository.GetAllWorkouts();
+        AllWorkouts = await _workoutRepository.GetAllWorkouts();
     }
 
-    public IList<Workout> AllWorkouts => _allWorkouts;
+    public async Task UpdateWorkout(Workout workout)
+    {
+        await _workoutRepository.Delete(workout.Id);
+        await _workoutRepository.Add(workout);
+        OnWorkoutStoreStateChanged.Invoke();
+    }
+
 
     public void MoveWorkoutUp(Workout workout)
     {

@@ -1,4 +1,3 @@
-using NoBullshitTimer.Client.Application;
 using NoBullshitTimer.Client.Repositories;
 using NoBullshitTimer.Tests.Domain;
 using NUnit.Framework;
@@ -35,14 +34,14 @@ public abstract class TestWorkoutRepository
     {
         var workout = Fixtures.SomeWorkout();
         await Repository.Add(workout);
-        var getResult = await Repository.Get(workout.Name);
+        var getResult = await Repository.Get(workout.Id);
         Assert.That(getResult, Is.EqualTo(workout));
     }
 
     [Test]
     public void Test_GetNonExisting()
     {
-        Assert.ThrowsAsync<WorkoutNotFoundException>(async () => await Repository.Get("SomeNonExistingName"));
+        Assert.ThrowsAsync<WorkoutNotFoundException>(async () => await Repository.Get(Guid.NewGuid()));
     }
 
     [Test]
@@ -50,14 +49,14 @@ public abstract class TestWorkoutRepository
     {
         var someWorkout = Fixtures.SomeWorkout();
         await Repository.Add(someWorkout);
-        await Repository.Delete(someWorkout.Name);
+        await Repository.Delete(someWorkout.Id);
         Assert.That(await Repository.GetAllWorkouts(), Is.Empty);
     }
 
     [Test]
     public async Task Test_Delete_DoesNothingIfWorkoutDoesNotExist()
     {
-        await Repository.Delete("SomeWorkout");
+        await Repository.Delete(Guid.NewGuid());
         Assert.That(await Repository.GetAllWorkouts(), Is.Empty);
     }
 
@@ -76,6 +75,20 @@ public abstract class TestWorkoutRepository
     }
 
     [Test]
+    public async Task Test_OnRepositoryChanged_NotInvokedOnDeleteNonExisting()
+    {
+        var wasInvoked = false;
+        Repository.OnRepositoryChanged += () =>
+        {
+            wasInvoked = true;
+            return Task.CompletedTask;
+        };
+
+        await Repository.Delete(Guid.NewGuid());
+        Assert.That(wasInvoked, Is.False);
+    }
+
+    [Test]
     public async Task Test_OnRepositoryChanged_InvokedOnDelete()
     {
         var wasInvoked = false;
@@ -85,7 +98,9 @@ public abstract class TestWorkoutRepository
             return Task.CompletedTask;
         };
 
-        await Repository.Delete("SomeWorkout");
+        var workout = Fixtures.SomeWorkout();
+        await Repository.Add(workout);
+        await Repository.Delete(workout.Id);
         Assert.That(wasInvoked, Is.True);
     }
 }

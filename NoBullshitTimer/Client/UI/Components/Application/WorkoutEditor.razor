@@ -2,6 +2,7 @@
 @using NoBullshitTimer.Client.Domain
 @using NoBullshitTimer.Client.Components
 @using NoBullshitTimer.Client.Repositories
+@using NoBullshitTimer.Client.Stores
 @using NoBullshitTimer.Client.UI.Components.Generic
 
 <div class="flex justify-center">
@@ -91,7 +92,6 @@
 
 @inject IntervalTimer Timer
 @inject IWorkoutStore WorkoutStore
-@inject IWorkoutRepository WorkoutRepository
 @inject WorkoutMapper WorkoutMapper
 
 @code {
@@ -108,6 +108,13 @@
         WorkoutStore.OnWorkoutStoreStateChanged += ApplyWorkoutToForm;
     }
 
+    private void ApplyWorkoutToForm()
+    {
+        _workoutForm = WorkoutMapper.ToForm(WorkoutStore.SelectedWorkout);
+        _workoutForm.OnFormChanged += StateHasChanged;
+        _originalName = _workoutForm.Name;
+        StateHasChanged();
+    }
 
     private string TotalInputTime => (
         WorkoutInEditing.PrepareTime
@@ -118,25 +125,18 @@
     ).ToString();
 
 
-    private void SaveChanges()
+    private async void SaveChanges()
     {
         var originalName = _originalName;
         var workout = WorkoutInEditing;
         var newName = workout.Name;
-        WorkoutRepository.Delete(originalName);
-        WorkoutRepository.Add(workout);
+        await WorkoutStore.UpdateWorkout(workout);
         WorkoutStore.SelectedWorkout = workout;
         _workoutForm.Dirty = false;
         _originalName = newName;
-        CloseWorkoutEditor.InvokeAsync();
+        await CloseWorkoutEditor.InvokeAsync();
         StateHasChanged();
     }
 
-    private void ApplyWorkoutToForm()
-    {
-        _workoutForm = WorkoutMapper.ToForm(WorkoutStore.SelectedWorkout);
-        _workoutForm.OnFormChanged += StateHasChanged;
-        _originalName = _workoutForm.Name;
-        StateHasChanged();
-    }
+
 }

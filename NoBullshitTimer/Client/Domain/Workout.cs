@@ -1,10 +1,13 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using NoBullshitTimer.Client.Framework;
 
 namespace NoBullshitTimer.Client.Domain;
 
+
 public class Workout : IEquatable<Workout>
 {
+    public Guid Id { get; init; }
     public string Name { get; init; }
 
     [JsonConverter(typeof(JsonTimeSpanConverter))]
@@ -23,11 +26,13 @@ public class Workout : IEquatable<Workout>
     // parameterless ctor for json deserialization
     public Workout()
     {
+        Id = Guid.NewGuid();
         Name = "";
         Exercises = new List<string>();
     }
 
     public Workout(
+        Guid id,
         string name,
         TimeSpan prepareTime,
         TimeSpan exerciseTime,
@@ -37,6 +42,7 @@ public class Workout : IEquatable<Workout>
         List<string> exercises,
         bool circularSets)
     {
+        Id = id;
         Name = name;
         PrepareTime = prepareTime;
         ExerciseTime = exerciseTime;
@@ -72,7 +78,8 @@ public class Workout : IEquatable<Workout>
     {
         if (other is null)
             return false;
-        return Name == other.Name
+        return Id == other.Id
+               && Name == other.Name
                && PrepareTime.Equals(other.PrepareTime)
                && ExerciseTime.Equals(other.ExerciseTime)
                && RestTime.Equals(other.RestTime)
@@ -84,17 +91,30 @@ public class Workout : IEquatable<Workout>
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(
-            Name, PrepareTime, ExerciseTime, RestTime, CooldownTime, SetsPerExercise, Exercises, CircularSets
-        );
+        var hash1 = HashCode.Combine(Id, Name, PrepareTime, ExerciseTime, RestTime);
+        var hash2 = HashCode.Combine(CooldownTime, SetsPerExercise, Exercises, CircularSets);
+        return HashCode.Combine(hash1, hash2);
+    }
+
+    public override string ToString()
+    {
+        return JsonSerializer.Serialize(this, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
     }
 }
 
 public static class WorkoutPresets
 {
+    private static readonly Guid HIITPresetId = new("11111111-1111-1111-1111-111111111111");
+    private static readonly Guid TabataPresetId = new("22222222-2222-2222-2222-222222222222");
+    private static readonly Guid BoxingPresetId = new("33333333-3333-3333-3333-333333333333");
+
     public static Workout HIITPreset()
     {
         return new Workout(
+            HIITPresetId,
             "HIIT",
             TimeSpan.FromMinutes(1),
             TimeSpan.FromSeconds(40),
@@ -110,6 +130,7 @@ public static class WorkoutPresets
     public static Workout TabataPreset()
     {
         return new Workout(
+            TabataPresetId,
             "Tabata",
             TimeSpan.FromMinutes(1),
             TimeSpan.FromSeconds(20),
@@ -124,6 +145,7 @@ public static class WorkoutPresets
     public static Workout BoxingPreset()
     {
         return new Workout(
+            BoxingPresetId,
             "Boxing",
             TimeSpan.FromMinutes(1),
             TimeSpan.FromMinutes(3),
@@ -135,13 +157,13 @@ public static class WorkoutPresets
         );
     }
 
-    public static Dictionary<string, Workout> DefaultPresets()
+    public static Dictionary<Guid, Workout> DefaultPresets()
     {
-        return new Dictionary<string, Workout>
+        return new Dictionary<Guid, Workout>
         {
-            { HIITPreset().Name, HIITPreset() },
-            { TabataPreset().Name, TabataPreset() },
-            { BoxingPreset().Name, BoxingPreset() }
+            { HIITPresetId, HIITPreset() },
+            { TabataPresetId, TabataPreset() },
+            { BoxingPresetId, BoxingPreset() }
         };
     }
 }

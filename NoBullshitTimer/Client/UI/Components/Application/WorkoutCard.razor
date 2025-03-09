@@ -2,6 +2,7 @@
 @using NoBullshitTimer.Client.Application
 @using NoBullshitTimer.Client.Components
 @using NoBullshitTimer.Client.Domain
+@using NoBullshitTimer.Client.Stores
 @using NoBullshitTimer.Client.UI.Components.Generic
 
 <div class="@ClassToRender" @onclick="SelectWorkout">
@@ -52,7 +53,7 @@
 
     [Parameter] public EventCallback OnEditClick { get; set; }
 
-    private bool IsSelectedWorkout => Workout == WorkoutStore.SelectedWorkout;
+    private bool IsSelectedWorkout => Workout.Equals(WorkoutStore.SelectedWorkout);
 
     private string ClassToRender { get; set; } = "";
 
@@ -60,7 +61,13 @@
     protected override void OnParametersSet()
     {
         UpdateCssClasses();
-        WorkoutStore.OnWorkoutStoreStateChanged += UpdateCssClasses;
+        WorkoutStore.OnWorkoutStoreStateChanged += OnWorkoutStoreChanged;
+    }
+
+    private void OnWorkoutStoreChanged()
+    {
+        UpdateCssClasses();
+        StateHasChanged();
     }
 
     private void UpdateCssClasses()
@@ -79,13 +86,11 @@
 
     private void MoveWorkoutUp()
     {
-        Console.WriteLine("move workout up");
         WorkoutStore.MoveWorkoutUp(Workout);
     }
 
     private void MoveWorkoutDown()
     {
-        Console.WriteLine("move workout down");
         WorkoutStore.MoveWorkoutDown(Workout);
     }
 }

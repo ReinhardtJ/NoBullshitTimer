@@ -1,4 +1,3 @@
-using NoBullshitTimer.Client.Application;
 using NoBullshitTimer.Client.Domain;
 using NoBullshitTimer.Client.Repositories;
 using NUnit.Framework;
@@ -15,7 +14,7 @@ public class TestInMemoryWorkoutRepository : TestWorkoutRepository
     public void Init()
     {
         _repository = new InMemoryWorkoutRepository(
-            new Dictionary<string, Workout>()
+            new Dictionary<Guid, Workout>()
         );
     }
 }

@@ -1,7 +1,6 @@
-@using NoBullshitTimer.Client.Application
 @using NoBullshitTimer.Client.Components
 @using NoBullshitTimer.Client.Domain
-@using NoBullshitTimer.Client.Repositories
+@using NoBullshitTimer.Client.Stores
 @using NoBullshitTimer.Client.UI.Components.Generic
 
 <div>
@@ -26,7 +25,6 @@
 
 
 @inject IntervalTimer Timer
-@inject IWorkoutRepository WorkoutRepository
 @inject IWorkoutStore WorkoutStore
 
 @code {
