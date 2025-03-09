@@ -107,9 +107,9 @@ public class Workout : IEquatable<Workout>
 
 public static class WorkoutPresets
 {
-    private static readonly Guid HIITPresetId = new("11111111-1111-1111-1111-111111111111");
-    private static readonly Guid TabataPresetId = new("22222222-2222-2222-2222-222222222222");
-    private static readonly Guid BoxingPresetId = new("33333333-3333-3333-3333-333333333333");
+    private static readonly Guid HIITPresetId = new("74a183a7-d77f-4906-9766-c191117d5651");
+    private static readonly Guid TabataPresetId = new("0dfa3425-3a72-4163-af65-352b7abc1044");
+    private static readonly Guid BoxingPresetId = new("27cd02dc-5835-4b28-8d6b-2aa562907765");
 
     public static Workout HIITPreset()
     {
